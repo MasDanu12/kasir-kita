@@ -9,7 +9,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "kasir_hpp"
-database_id = "GANTI_SETELAH_BUAT_DATABASE"
+database_id = "9cc5a167-bca1-4435-a224-677f1e7f4570"
 
 [vars]
 JWT_SECRET = "GANTI_DENGAN_TEKS_RAHASIA_PANJANG_DAN_ACAK"
