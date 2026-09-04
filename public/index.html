@@ -1,1 +1,945 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Kasir HPP</title>
+<meta name="theme-color" content="#2C5F5A" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EFE6;
+    --paper-2:#EAE3D4;
+    --ink:#26211B;
+    --ink-soft:#5B5348;
+    --line:#D9D0BC;
+    --teal:#2C5F5A;
+    --teal-dark:#1E4744;
+    --teal-tint:#DCE7E4;
+    --mustard:#C08A28;
+    --mustard-tint:#F3E6C9;
+    --brick:#A63D40;
+    --brick-tint:#F3DCDC;
+    --card:#FBF9F3;
+    --shadow: 0 1px 0 rgba(38,33,27,.06);
+    --radius: 14px;
+    --radius-sm: 9px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-t: env(safe-area-inset-top, 0px);
+  }
+  [data-theme="gelap"]{
+    --paper:#1B1815;
+    --paper-2:#221E19;
+    --ink:#EFE9DE;
+    --ink-soft:#B4AA9A;
+    --line:#3A342B;
+    --teal:#4F8983;
+    --teal-dark:#3C6E69;
+    --teal-tint:#22302E;
+    --mustard:#D9A44A;
+    --mustard-tint:#332A17;
+    --brick:#C15A5D;
+    --brick-tint:#332020;
+    --card:#221E19;
+    --shadow: 0 1px 0 rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif; font-size:15px; line-height:1.45;
+    overscroll-behavior-y:none;
+  }
+  h1,h2,h3,.serif{ font-family:'Zilla Slab', serif; letter-spacing:.1px; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  button, input, select{ font-family:inherit; font-size:inherit; color:inherit; }
+  button{ cursor:pointer; }
+  a{ color:inherit; }
 
+  #app{ max-width:480px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; position:relative; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:var(--paper); padding:calc(14px + var(--safe-t)) 18px 12px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid var(--line);
+  }
+  .topbar h1{ margin:0; font-size:20px; font-weight:700; }
+  .topbar .sub{ color:var(--ink-soft); font-size:12.5px; margin-top:2px; }
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    background:var(--card); display:flex; align-items:center; justify-content:center;
+  }
+
+  main{ flex:1; padding:16px 16px calc(96px + var(--safe-b)); }
+
+  /* ---------- Cards ---------- */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; box-shadow:var(--shadow);
+  }
+  .card + .card{ margin-top:12px; }
+  .section-title{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin:22px 0 10px;
+  }
+  .section-title h2{ font-size:16.5px; margin:0; }
+  .section-title .hint{ font-size:12.5px; color:var(--ink-soft); }
+
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+
+  .stat{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm);
+    padding:12px 12px;
+  }
+  .stat .label{ font-size:11.5px; color:var(--ink-soft); text-transform:none; }
+  .stat .value{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:17px; margin-top:4px; }
+  .stat.profit .value{ color:var(--teal-dark); }
+  .stat.warn .value{ color:var(--brick); }
+  [data-theme="gelap"] .stat.profit .value{ color:var(--teal); }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--card);
+    padding:11px 16px; font-weight:600; font-size:14.5px; width:100%;
+  }
+  .btn-primary{ background:var(--teal); color:#fff; border-color:var(--teal); }
+  .btn-primary:active{ background:var(--teal-dark); }
+  .btn-ghost{ background:transparent; }
+  .btn-danger{ color:var(--brick); border-color:var(--brick); background:transparent; }
+  .btn-sm{ padding:7px 12px; font-size:13px; width:auto; }
+  .btn:disabled{ opacity:.45; }
+  .btn-row{ display:flex; gap:10px; margin-top:14px; }
+  .btn-row .btn{ flex:1; }
+
+  /* ---------- Forms ---------- */
+  label{ display:block; font-size:12.5px; color:var(--ink-soft); margin:12px 0 5px; }
+  label:first-child{ margin-top:0; }
+  input, select, textarea{
+    width:100%; padding:11px 12px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  }
+  textarea{ resize:vertical; min-height:60px; }
+  input:focus, select:focus, textarea:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+
+  /* ---------- Auth screen ---------- */
+  #tela-auth{
+    flex:1; display:flex; flex-direction:column; justify-content:center; padding:28px 26px;
+  }
+  .auth-mark{ font-family:'Zilla Slab',serif; font-weight:700; font-size:30px; margin:0 0 2px; }
+  .auth-tag{ color:var(--ink-soft); font-size:13.5px; margin-bottom:26px; }
+  .auth-toggle{ display:flex; gap:18px; margin-bottom:18px; border-bottom:1px solid var(--line); }
+  .auth-toggle button{
+    background:none; border:none; padding:8px 0; font-weight:600; color:var(--ink-soft);
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .auth-toggle button.aktif{ color:var(--ink); border-color:var(--teal); }
+  .form-err{ color:var(--brick); font-size:13px; margin-top:10px; min-height:16px; }
+
+  /* ---------- Bottom nav ---------- */
+  nav.tabs{
+    position:fixed; left:0; right:0; bottom:0; z-index:30;
+    max-width:480px; margin:0 auto;
+    background:var(--card); border-top:1px solid var(--line);
+    display:flex; padding:6px 4px calc(6px + var(--safe-b));
+  }
+  nav.tabs button{
+    flex:1; background:none; border:none; display:flex; flex-direction:column;
+    align-items:center; gap:3px; padding:6px 2px; color:var(--ink-soft); font-size:10.5px; font-weight:600;
+    border-radius:10px;
+  }
+  nav.tabs button svg{ width:21px; height:21px; }
+  nav.tabs button.aktif{ color:var(--teal); }
+  [data-theme="gelap"] nav.tabs button.aktif{ color:var(--teal); }
+
+  /* ---------- Kasir keypad ---------- */
+  .produk-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .produk-tile{
+    text-align:left; border:1px solid var(--line); background:var(--card); border-radius:var(--radius-sm);
+    padding:12px; position:relative; overflow:hidden;
+  }
+  .produk-tile:active{ background:var(--teal-tint); }
+  .produk-tile .nama{ font-weight:600; font-size:14px; display:block; margin-bottom:6px; }
+  .produk-tile .harga{ font-family:'IBM Plex Mono',monospace; color:var(--teal-dark); font-weight:600; font-size:14px; }
+  [data-theme="gelap"] .produk-tile .harga{ color:var(--teal); }
+  .produk-tile .stok{ position:absolute; top:10px; right:10px; font-size:10.5px; color:var(--ink-soft); }
+  .produk-tile.habis{ opacity:.4; }
+  .produk-tile .badge-stok-rendah{
+    position:absolute; top:0; left:0; width:5px; height:100%; background:var(--brick);
+  }
+
+  .keranjang-bar{
+    position:fixed; left:0; right:0; bottom:calc(64px + var(--safe-b)); z-index:25;
+    max-width:480px; margin:0 auto; padding:0 16px;
+  }
+  .keranjang-bar .isi{
+    background:var(--ink); color:var(--paper); border-radius:var(--radius); padding:13px 16px;
+    display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 18px rgba(0,0,0,.18);
+  }
+  [data-theme="gelap"] .keranjang-bar .isi{ background:var(--teal); }
+  .keranjang-bar .kiri{ font-size:13.5px; }
+  .keranjang-bar .kiri b{ font-family:'IBM Plex Mono',monospace; display:block; font-size:16px; }
+  .keranjang-bar button{ background:var(--mustard); color:#221A0A; border:none; border-radius:9px; padding:9px 16px; font-weight:700; }
+
+  /* ---------- Sheet (modal bawah) ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,17,13,.45); z-index:40;
+    display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity .18s;
+  }
+  .overlay.terbuka{ opacity:1; pointer-events:auto; }
+  .sheet{
+    background:var(--paper); width:100%; max-width:480px; margin:0 auto; border-radius:18px 18px 0 0;
+    padding:18px 18px calc(22px + var(--safe-b)); max-height:88vh; overflow-y:auto;
+    transform:translateY(16px); transition:transform .18s;
+  }
+  .overlay.terbuka .sheet{ transform:translateY(0); }
+  .sheet-handle{ width:38px; height:4px; background:var(--line); border-radius:3px; margin:0 auto 14px; }
+  .sheet-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .sheet-head h3{ margin:0; font-size:17px; }
+
+  /* ---------- Lists ---------- */
+  .list-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .list-row:last-child{ border-bottom:none; }
+  .list-row .info b{ display:block; font-size:14.5px; }
+  .list-row .info span{ font-size:12.5px; color:var(--ink-soft); }
+  .list-row .kanan{ text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; white-space:nowrap; }
+  .chip{
+    display:inline-block; font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:999px;
+    background:var(--teal-tint); color:var(--teal-dark);
+  }
+  [data-theme="gelap"] .chip{ color:var(--teal); }
+  .chip.mustard{ background:var(--mustard-tint); color:var(--mustard); }
+  .chip.brick{ background:var(--brick-tint); color:var(--brick); }
+
+  .subtabs{ display:flex; gap:6px; margin-bottom:14px; background:var(--paper-2); padding:4px; border-radius:11px; }
+  .subtabs button{
+    flex:1; background:none; border:none; padding:8px 4px; border-radius:8px; font-weight:600; font-size:12.8px; color:var(--ink-soft);
+  }
+  .subtabs button.aktif{ background:var(--card); color:var(--ink); box-shadow:var(--shadow); }
+
+  .fab{
+    position:fixed; right:calc(16px + (100vw - 480px) / 2); bottom:calc(76px + var(--safe-b));
+    z-index:22; width:52px; height:52px; border-radius:50%; background:var(--teal); color:#fff;
+    border:none; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(44,95,90,.4);
+  }
+  @media (max-width:480px){ .fab{ right:16px; } }
+
+  .empty{ text-align:center; padding:40px 12px; color:var(--ink-soft); }
+  .empty svg{ width:40px; height:40px; margin-bottom:10px; opacity:.5; }
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(100px + var(--safe-b)); transform:translateX(-50%);
+    background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:999px; font-size:13.5px;
+    z-index:60; opacity:0; pointer-events:none; transition:opacity .2s, bottom .2s;
+  }
+  .toast.tampil{ opacity:1; bottom:calc(110px + var(--safe-b)); }
+
+  .bahan-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .bahan-row select{ flex:2; } .bahan-row input{ flex:1; }
+  .bahan-row button{ background:none; border:none; color:var(--brick); width:30px; }
+
+  .switch-row{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); }
+  .switch{ position:relative; width:42px; height:24px; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .track{ position:absolute; inset:0; background:var(--line); border-radius:999px; transition:.2s; }
+  .switch .track:before{ content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .track{ background:var(--teal); }
+  .switch input:checked + .track:before{ transform:translateX(18px); }
+
+  .loading-screen{ flex:1; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== AUTH ===== -->
+  <div id="tela-auth" class="hidden">
+    <div class="auth-mark">Kasir HPP</div>
+    <div class="auth-tag">Racik resep, hitung HPP otomatis, catat tiap penjualan.</div>
+
+    <div class="auth-toggle">
+      <button id="tab-login" class="aktif" onclick="setModeAuth('login')">Masuk</button>
+      <button id="tab-daftar" onclick="setModeAuth('daftar')">Daftar Usaha Baru</button>
+    </div>
+
+    <form id="form-auth" onsubmit="return submitAuth(event)">
+      <div id="field-nama-usaha" class="hidden">
+        <label>Nama usaha</label>
+        <input type="text" id="in-nama-usaha" placeholder="Contoh: Dapur Bunda">
+      </div>
+      <label>Email</label>
+      <input type="email" id="in-email" required placeholder="nama@email.com">
+      <label>Password</label>
+      <input type="password" id="in-password" required minlength="6" placeholder="Minimal 6 karakter">
+      <div class="form-err" id="auth-err"></div>
+      <div class="btn-row">
+        <button type="submit" class="btn btn-primary" id="btn-auth-submit">Masuk</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===== APP SHELL ===== -->
+  <div id="tela-app" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1 id="judul-halaman">Beranda</h1>
+        <div class="sub" id="subjudul-halaman">—</div>
+      </div>
+      <button class="icon-btn" onclick="pindahTab('profil')" aria-label="Profil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="19" height="19"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/></svg>
+      </button>
+    </div>
+
+    <main id="konten"></main>
+
+    <div class="keranjang-bar hidden" id="bar-keranjang">
+      <div class="isi" onclick="bukaKeranjang()">
+        <div class="kiri">Keranjang · <span id="keranjang-jumlah">0</span> item<b id="keranjang-total">Rp 0</b></div>
+        <button onclick="event.stopPropagation(); bukaKeranjang()">Bayar</button>
+      </div>
+    </div>
+
+    <nav class="tabs">
+      <button data-tab="beranda" onclick="pindahTab('beranda')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>
+        Beranda
+      </button>
+      <button data-tab="kasir" onclick="pindahTab('kasir')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="16" height="12" rx="1.5"/><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/></svg>
+        Kasir
+      </button>
+      <button data-tab="racik" onclick="pindahTab('racik')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3v6L5 19a1.5 1.5 0 0 0 1.4 2h11.2A1.5 1.5 0 0 0 19 19l-4-10V3"/><path d="M9 3h6"/></svg>
+        Racik
+      </button>
+      <button data-tab="laporan" onclick="pindahTab('laporan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V9M12 19V5M19 19v-6"/></svg>
+        Laporan
+      </button>
+      <button data-tab="profil" onclick="pindahTab('profil')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/></svg>
+        Profil
+      </button>
+    </nav>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="if(event.target===this) tutupSheet()">
+    <div class="sheet" id="sheet-konten"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ====================================================================
+   Kasir HPP — logika frontend (vanilla JS, satu file)
+   ==================================================================== */
+const API = '/api';
+let TOKEN = localStorage.getItem('kh_token') || null;
+let USER = JSON.parse(localStorage.getItem('kh_user') || 'null');
+let TEMA = localStorage.getItem('kh_tema') || 'terang';
+document.documentElement.setAttribute('data-theme', TEMA);
+
+let STATE = {
+  tab: 'beranda',
+  subtabRacik: 'bahan',
+  bahan: [], resep: [], produk: [], dashboard: null, laporan: null,
+  keranjang: {}, // produk_id -> qty
+  periodeLaporan: 7,
+};
+
+// ---------- fetch helper ----------
+async function api(path, opts = {}) {
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+  if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+  const res = await fetch(API + path, Object.assign({}, opts, { headers }));
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Terjadi kesalahan');
+  return data;
+}
+
+function rupiah(n) {
+  n = Math.round(Number(n) || 0);
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+function tanggalPendek(iso) {
+  const d = new Date(iso.replace(' ', 'T') + 'Z');
+  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('tampil');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('tampil'), 2200);
+}
+
+// ---------- AUTH ----------
+function setModeAuth(mode) {
+  document.getElementById('tab-login').classList.toggle('aktif', mode === 'login');
+  document.getElementById('tab-daftar').classList.toggle('aktif', mode === 'daftar');
+  document.getElementById('field-nama-usaha').classList.toggle('hidden', mode !== 'daftar');
+  document.getElementById('btn-auth-submit').textContent = mode === 'daftar' ? 'Buat akun & mulai' : 'Masuk';
+  document.getElementById('form-auth').dataset.mode = mode;
+  document.getElementById('auth-err').textContent = '';
+}
+async function submitAuth(e) {
+  e.preventDefault();
+  const mode = document.getElementById('form-auth').dataset.mode || 'login';
+  const email = document.getElementById('in-email').value.trim();
+  const password = document.getElementById('in-password').value;
+  const errEl = document.getElementById('auth-err');
+  errEl.textContent = '';
+  try {
+    const payload = { email, password };
+    if (mode === 'daftar') payload.nama_usaha = document.getElementById('in-nama-usaha').value.trim() || 'Usaha Saya';
+    const data = await api('/auth/' + (mode === 'daftar' ? 'register' : 'login'), { method: 'POST', body: JSON.stringify(payload) });
+    TOKEN = data.token; USER = data.user;
+    localStorage.setItem('kh_token', TOKEN);
+    localStorage.setItem('kh_user', JSON.stringify(USER));
+    await masukKeApp();
+  } catch (err) {
+    errEl.textContent = err.message;
+  }
+  return false;
+}
+function keluar() {
+  localStorage.removeItem('kh_token'); localStorage.removeItem('kh_user');
+  TOKEN = null; USER = null;
+  document.getElementById('tela-app').classList.add('hidden');
+  document.getElementById('tela-auth').classList.remove('hidden');
+}
+
+// ---------- Boot ----------
+async function boot() {
+  if (TOKEN && USER) { await masukKeApp(); }
+  else { document.getElementById('tela-auth').classList.remove('hidden'); }
+}
+async function masukKeApp() {
+  document.getElementById('tela-auth').classList.add('hidden');
+  document.getElementById('tela-app').classList.remove('hidden');
+  await muatSemuaData();
+  pindahTab('beranda');
+}
+async function muatSemuaData() {
+  const [bahan, resep, produk] = await Promise.all([api('/bahan'), api('/resep'), api('/produk')]);
+  STATE.bahan = bahan; STATE.resep = resep; STATE.produk = produk;
+}
+
+// ---------- Navigasi ----------
+const JUDUL = {
+  beranda: ['Beranda', () => USER ? USER.nama_usaha : ''],
+  kasir: ['Kasir', () => 'Ketuk produk untuk tambah ke keranjang'],
+  racik: ['Racik', () => 'Bahan baku, resep, dan produk jual'],
+  laporan: ['Laporan', () => 'Omzet, HPP, dan profit usahamu'],
+  profil: ['Profil', () => USER ? USER.email : ''],
+};
+async function pindahTab(tab) {
+  STATE.tab = tab;
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('aktif', b.dataset.tab === tab));
+  document.getElementById('judul-halaman').textContent = JUDUL[tab][0];
+  document.getElementById('subjudul-halaman').textContent = JUDUL[tab][1]();
+  document.getElementById('bar-keranjang').classList.toggle('hidden', tab !== 'kasir' || jumlahKeranjang() === 0);
+  const konten = document.getElementById('konten');
+  konten.innerHTML = '<div class="loading-screen">Memuat…</div>';
+  try {
+    if (tab === 'beranda') await renderBeranda();
+    else if (tab === 'kasir') await renderKasir();
+    else if (tab === 'racik') await renderRacik();
+    else if (tab === 'laporan') await renderLaporan();
+    else if (tab === 'profil') renderProfil();
+  } catch (e) { konten.innerHTML = '<div class="empty">' + e.message + '</div>'; }
+}
+
+// ---------- BERANDA ----------
+async function renderBeranda() {
+  STATE.dashboard = await api('/dashboard');
+  const d = STATE.dashboard;
+  const konten = document.getElementById('konten');
+  let stokHtml = '';
+  if (d.stok_rendah.length) {
+    stokHtml = `<div class="section-title"><h2>Perlu restock</h2><span class="hint">${d.stok_rendah.length} produk</span></div>
+    <div class="card">` + d.stok_rendah.map(p => `
+      <div class="list-row">
+        <div class="info"><b>${escapeHtml(p.nama)}</b><span>Sisa stok ${p.stok}</span></div>
+        <span class="chip brick">Stok rendah</span>
+      </div>`).join('') + `</div>`;
+  }
+  konten.innerHTML = `
+    <div class="grid-2">
+      <div class="stat"><div class="label">Transaksi hari ini</div><div class="value">${d.transaksi_hari_ini}</div></div>
+      <div class="stat profit"><div class="label">Profit hari ini</div><div class="value">${rupiah(d.profit_hari_ini)}</div></div>
+      <div class="stat"><div class="label">Omzet hari ini</div><div class="value">${rupiah(d.omzet_hari_ini)}</div></div>
+      <div class="stat"><div class="label">HPP hari ini</div><div class="value">${rupiah(d.hpp_hari_ini)}</div></div>
+    </div>
+    ${stokHtml}
+    <div class="section-title"><h2>Mulai jualan</h2></div>
+    <div class="card">
+      <p style="margin:0 0 12px;color:var(--ink-soft);font-size:13.5px">Buka kasir untuk mencatat transaksi baru.</p>
+      <button class="btn btn-primary" onclick="pindahTab('kasir')">Buka Kasir</button>
+    </div>
+  `;
+}
+
+// ---------- KASIR ----------
+async function renderKasir() {
+  STATE.produk = await api('/produk');
+  const konten = document.getElementById('konten');
+  if (!STATE.produk.length) {
+    konten.innerHTML = emptyState('Belum ada produk', 'Tambahkan produk dulu di tab Racik → Produk.', 'racik');
+    return;
+  }
+  konten.innerHTML = `<div class="produk-grid">${STATE.produk.map(kartuProduk).join('')}</div>`;
+  perbaruiBarKeranjang();
+}
+function kartuProduk(p) {
+  const habis = p.stok <= 0;
+  const rendah = p.stok > 0 && p.stok <= p.stok_minimum;
+  const qty = STATE.keranjang[p.id] || 0;
+  return `
+    <button class="produk-tile ${habis ? 'habis' : ''}" ${habis ? 'disabled' : ''} onclick="tambahKeranjang(${p.id})">
+      ${rendah ? '<div class="badge-stok-rendah"></div>' : ''}
+      <span class="stok">Stok ${p.stok}</span>
+      <span class="nama">${escapeHtml(p.nama)}</span>
+      <span class="harga">${rupiah(p.harga_jual)}</span>
+      ${qty ? `<span class="chip mustard" style="margin-top:8px;display:inline-block">${qty} di keranjang</span>` : ''}
+    </button>`;
+}
+function tambahKeranjang(id) {
+  const p = STATE.produk.find(x => x.id === id);
+  const dipakai = STATE.keranjang[id] || 0;
+  if (dipakai + 1 > p.stok) { toast('Stok tidak cukup'); return; }
+  STATE.keranjang[id] = dipakai + 1;
+  renderKasir();
+}
+function jumlahKeranjang() { return Object.values(STATE.keranjang).reduce((a, b) => a + b, 0); }
+function totalKeranjang() {
+  return Object.entries(STATE.keranjang).reduce((sum, [id, qty]) => {
+    const p = STATE.produk.find(x => x.id == id);
+    return sum + (p ? p.harga_jual * qty : 0);
+  }, 0);
+}
+function perbaruiBarKeranjang() {
+  const jumlah = jumlahKeranjang();
+  document.getElementById('bar-keranjang').classList.toggle('hidden', jumlah === 0);
+  document.getElementById('keranjang-jumlah').textContent = jumlah;
+  document.getElementById('keranjang-total').textContent = rupiah(totalKeranjang());
+}
+function bukaKeranjang() {
+  if (jumlahKeranjang() === 0) return;
+  const baris = Object.entries(STATE.keranjang).map(([id, qty]) => {
+    const p = STATE.produk.find(x => x.id == id);
+    return `<div class="list-row">
+      <div class="info"><b>${escapeHtml(p.nama)}</b><span>${rupiah(p.harga_jual)} × ${qty}</span></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-sm btn-ghost" onclick="ubahQty(${id},-1)">−</button>
+        <span class="mono">${qty}</span>
+        <button class="btn btn-sm btn-ghost" onclick="ubahQty(${id},1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  bukaSheet(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>Keranjang</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <div class="card">${baris}</div>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="stat"><div class="label">Total item</div><div class="value">${jumlahKeranjang()}</div></div>
+      <div class="stat profit"><div class="label">Total bayar</div><div class="value">${rupiah(totalKeranjang())}</div></div>
+    </div>
+    <label>Metode bayar</label>
+    <select id="in-metode-bayar"><option>Tunai</option><option>QRIS</option><option>Transfer</option><option>Lainnya</option></select>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="kosongkanKeranjang()">Kosongkan</button>
+      <button class="btn btn-primary" onclick="prosesBayar()">Selesaikan</button>
+    </div>
+  `);
+}
+function ubahQty(id, delta) {
+  const p = STATE.produk.find(x => x.id == id);
+  let q = (STATE.keranjang[id] || 0) + delta;
+  if (q > p.stok) { toast('Stok tidak cukup'); return; }
+  if (q <= 0) delete STATE.keranjang[id]; else STATE.keranjang[id] = q;
+  if (jumlahKeranjang() === 0) tutupSheet(); else bukaKeranjang();
+  renderKasir();
+}
+function kosongkanKeranjang() { STATE.keranjang = {}; tutupSheet(); renderKasir(); }
+async function prosesBayar() {
+  const items = Object.entries(STATE.keranjang).map(([produk_id, qty]) => ({ produk_id: Number(produk_id), qty }));
+  const metode_bayar = document.getElementById('in-metode-bayar').value;
+  try {
+    const hasil = await api('/transaksi', { method: 'POST', body: JSON.stringify({ items, metode_bayar }) });
+    STATE.keranjang = {};
+    tutupSheet();
+    toast('Transaksi tersimpan · Profit ' + rupiah(hasil.total_profit));
+    await renderKasir();
+  } catch (e) { toast(e.message); }
+}
+
+// ---------- RACIK (Bahan / Resep / Produk) ----------
+async function renderRacik() {
+  const konten = document.getElementById('konten');
+  konten.innerHTML = `
+    <div class="subtabs">
+      <button data-sub="bahan" onclick="setSubRacik('bahan')">Bahan Baku</button>
+      <button data-sub="resep" onclick="setSubRacik('resep')">Resep</button>
+      <button data-sub="produk" onclick="setSubRacik('produk')">Produk Jual</button>
+    </div>
+    <div id="racik-konten"></div>
+  `;
+  await tampilkanSubRacik();
+}
+function setSubRacik(sub) { STATE.subtabRacik = sub; tampilkanSubRacik(); }
+async function tampilkanSubRacik() {
+  document.querySelectorAll('.subtabs button').forEach(b => b.classList.toggle('aktif', b.dataset.sub === STATE.subtabRacik));
+  const el = document.getElementById('racik-konten');
+  if (STATE.subtabRacik === 'bahan') { STATE.bahan = await api('/bahan'); el.innerHTML = daftarBahan(); }
+  else if (STATE.subtabRacik === 'resep') { STATE.resep = await api('/resep'); el.innerHTML = daftarResep(); }
+  else { STATE.produk = await api('/produk'); el.innerHTML = daftarProdukKelola(); }
+}
+
+function daftarBahan() {
+  if (!STATE.bahan.length) return emptyState('Belum ada bahan baku', 'Tambahkan bahan baku pertama untuk mulai menyusun resep.') + tombolTambah('bahanFormBaru()');
+  return `<div class="card">${STATE.bahan.map(b => `
+    <div class="list-row">
+      <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_per_satuan)} / ${escapeHtml(b.satuan)}</span></div>
+      <button class="btn btn-sm btn-ghost" onclick="bahanFormEdit(${b.id})">Ubah</button>
+    </div>`).join('')}</div>${tombolTambah('bahanFormBaru()')}`;
+}
+function bahanFormBaru() { bahanForm(null); }
+function bahanFormEdit(id) { bahanForm(STATE.bahan.find(b => b.id === id)); }
+function bahanForm(b) {
+  bukaSheet(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>${b ? 'Ubah' : 'Tambah'} Bahan Baku</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <label>Nama bahan</label><input id="bf-nama" value="${b ? escapeAttr(b.nama) : ''}" placeholder="Contoh: Tepung terigu">
+    <div class="grid-2">
+      <div><label>Satuan</label><input id="bf-satuan" value="${b ? escapeAttr(b.satuan) : ''}" placeholder="gr / ml / pcs"></div>
+      <div><label>Harga per satuan</label><input id="bf-harga" type="number" value="${b ? b.harga_per_satuan : ''}" placeholder="0"></div>
+    </div>
+    <div class="grid-2">
+      <div><label>Stok (opsional)</label><input id="bf-stok" type="number" value="${b ? b.stok : 0}"></div>
+      <div><label>Stok minimum</label><input id="bf-stok-min" type="number" value="${b ? b.stok_minimum : 0}"></div>
+    </div>
+    <div class="form-err" id="bf-err"></div>
+    <div class="btn-row">
+      ${b ? `<button class="btn btn-danger" onclick="bahanHapus(${b.id})">Hapus</button>` : ''}
+      <button class="btn btn-primary" onclick="bahanSimpan(${b ? b.id : 'null'})">Simpan</button>
+    </div>
+  `);
+}
+async function bahanSimpan(id) {
+  const payload = {
+    nama: document.getElementById('bf-nama').value.trim(),
+    satuan: document.getElementById('bf-satuan').value.trim(),
+    harga_per_satuan: Number(document.getElementById('bf-harga').value),
+    stok: Number(document.getElementById('bf-stok').value || 0),
+    stok_minimum: Number(document.getElementById('bf-stok-min').value || 0),
+  };
+  try {
+    if (id) await api('/bahan/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+    else await api('/bahan', { method: 'POST', body: JSON.stringify(payload) });
+    tutupSheet(); toast('Bahan baku tersimpan'); await tampilkanSubRacik();
+  } catch (e) { document.getElementById('bf-err').textContent = e.message; }
+}
+async function bahanHapus(id) {
+  try { await api('/bahan/' + id, { method: 'DELETE' }); tutupSheet(); toast('Bahan dihapus'); await tampilkanSubRacik(); }
+  catch (e) { document.getElementById('bf-err').textContent = e.message; }
+}
+
+function daftarResep() {
+  if (!STATE.resep.length) return emptyState('Belum ada resep', 'Susun resep dari bahan baku untuk menghitung HPP otomatis.') + tombolTambah('resepFormBaru()');
+  return `<div class="card">${STATE.resep.map(r => `
+    <div class="list-row">
+      <div class="info"><b>${escapeHtml(r.nama)}</b><span>${escapeHtml(r.kategori)}</span></div>
+      <div style="text-align:right">
+        <div class="kanan">${rupiah(r.hpp)}</div>
+        <button class="btn btn-sm btn-ghost" onclick="resepFormEdit(${r.id})">Ubah</button>
+      </div>
+    </div>`).join('')}</div>${tombolTambah('resepFormBaru()')}`;
+}
+let resepBahanBaris = [];
+function resepFormBaru() { resepBahanBaris = [{ bahan_id: '', qty: '' }]; resepForm(null); }
+async function resepFormEdit(id) {
+  const r = await api('/resep/' + id);
+  resepBahanBaris = r.bahan.map(b => ({ bahan_id: b.bahan_id, qty: b.qty }));
+  resepForm(r);
+}
+function opsiBahan(selectedId) {
+  return STATE.bahan.map(b => `<option value="${b.id}" ${b.id == selectedId ? 'selected' : ''}>${escapeHtml(b.nama)} (${escapeHtml(b.satuan)})</option>`).join('');
+}
+function resepForm(r) {
+  if (!STATE.bahan.length) { toast('Tambahkan bahan baku dulu sebelum membuat resep'); return; }
+  bukaSheet(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>${r ? 'Ubah' : 'Tambah'} Resep</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <label>Nama resep / produk</label><input id="rf-nama" value="${r ? escapeAttr(r.nama) : ''}" placeholder="Contoh: Es Kopi Susu">
+    <label>Kategori</label><input id="rf-kategori" value="${r ? escapeAttr(r.kategori) : 'Umum'}">
+    <label style="margin-top:16px">Komposisi bahan</label>
+    <div id="rf-bahan-list"></div>
+    <button class="btn btn-sm btn-ghost" style="margin-top:4px" onclick="resepTambahBaris()">+ Tambah bahan</button>
+    <div class="stat" style="margin-top:14px"><div class="label">Perkiraan HPP</div><div class="value" id="rf-hpp-preview">Rp 0</div></div>
+    <div class="form-err" id="rf-err"></div>
+    <div class="btn-row">
+      ${r ? `<button class="btn btn-danger" onclick="resepHapus(${r.id})">Hapus</button>` : ''}
+      <button class="btn btn-primary" onclick="resepSimpan(${r ? r.id : 'null'})">Simpan</button>
+    </div>
+  `);
+  renderBarisResep();
+}
+function renderBarisResep() {
+  const el = document.getElementById('rf-bahan-list');
+  el.innerHTML = resepBahanBaris.map((row, i) => `
+    <div class="bahan-row">
+      <select onchange="resepBahanBaris[${i}].bahan_id=this.value; previewHpp()">${'<option value="">Pilih bahan</option>' + opsiBahan(row.bahan_id)}</select>
+      <input type="number" placeholder="Qty" value="${row.qty}" oninput="resepBahanBaris[${i}].qty=this.value; previewHpp()">
+      <button onclick="resepHapusBaris(${i})">✕</button>
+    </div>`).join('');
+  previewHpp();
+}
+function resepTambahBaris() { resepBahanBaris.push({ bahan_id: '', qty: '' }); renderBarisResep(); }
+function resepHapusBaris(i) { resepBahanBaris.splice(i, 1); renderBarisResep(); }
+function previewHpp() {
+  let total = 0;
+  for (const row of resepBahanBaris) {
+    const b = STATE.bahan.find(x => x.id == row.bahan_id);
+    if (b && row.qty) total += Number(row.qty) * b.harga_per_satuan;
+  }
+  const el = document.getElementById('rf-hpp-preview');
+  if (el) el.textContent = rupiah(total);
+}
+async function resepSimpan(id) {
+  const bahanValid = resepBahanBaris.filter(r => r.bahan_id && r.qty);
+  const payload = {
+    nama: document.getElementById('rf-nama').value.trim(),
+    kategori: document.getElementById('rf-kategori').value.trim() || 'Umum',
+    bahan: bahanValid.map(r => ({ bahan_id: Number(r.bahan_id), qty: Number(r.qty) })),
+  };
+  try {
+    if (id) await api('/resep/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+    else await api('/resep', { method: 'POST', body: JSON.stringify(payload) });
+    tutupSheet(); toast('Resep tersimpan'); await tampilkanSubRacik();
+  } catch (e) { document.getElementById('rf-err').textContent = e.message; }
+}
+async function resepHapus(id) {
+  try { await api('/resep/' + id, { method: 'DELETE' }); tutupSheet(); toast('Resep dihapus'); await tampilkanSubRacik(); }
+  catch (e) { document.getElementById('rf-err').textContent = e.message; }
+}
+
+function daftarProdukKelola() {
+  if (!STATE.produk.length) return emptyState('Belum ada produk jual', 'Hubungkan resep ke produk supaya bisa dijual di kasir.') + tombolTambah('produkFormBaru()');
+  return `<div class="card">${STATE.produk.map(p => `
+    <div class="list-row">
+      <div class="info"><b>${escapeHtml(p.nama)}</b><span>HPP ${rupiah(p.hpp)} · Margin ${p.margin}%</span></div>
+      <div style="text-align:right">
+        <div class="kanan">${rupiah(p.harga_jual)}</div>
+        <button class="btn btn-sm btn-ghost" onclick="produkFormEdit(${p.id})">Ubah</button>
+      </div>
+    </div>`).join('')}</div>${tombolTambah('produkFormBaru()')}`;
+}
+function produkFormBaru() { produkForm(null); }
+function produkFormEdit(id) { produkForm(STATE.produk.find(p => p.id === id)); }
+function opsiResep(selectedId) {
+  return `<option value="">— HPP manual —</option>` + STATE.resep.map(r => `<option value="${r.id}" ${r.id == selectedId ? 'selected' : ''}>${escapeHtml(r.nama)} (HPP ${rupiah(r.hpp)})</option>`).join('');
+}
+function produkForm(p) {
+  bukaSheet(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>${p ? 'Ubah' : 'Tambah'} Produk</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <label>Nama produk</label><input id="pf-nama" value="${p ? escapeAttr(p.nama) : ''}" placeholder="Nama yang tampil di kasir">
+    <label>Sumber HPP</label>
+    <select id="pf-resep" onchange="pfToggleManual()">${opsiResep(p ? p.resep_id : '')}</select>
+    <div id="pf-manual-wrap" class="${p && !p.resep_id ? '' : 'hidden'}">
+      <label>HPP manual</label><input id="pf-hpp-manual" type="number" value="${p && p.hpp_manual ? p.hpp_manual : ''}">
+    </div>
+    <div class="grid-2">
+      <div><label>Harga jual</label><input id="pf-harga" type="number" value="${p ? p.harga_jual : ''}"></div>
+      <div><label>Stok ${p ? '(ubah lewat restock)' : ''}</label><input id="pf-stok" type="number" value="${p ? p.stok : 0}" ${p ? 'disabled' : ''}></div>
+    </div>
+    <label>Stok minimum (peringatan)</label><input id="pf-stok-min" type="number" value="${p ? p.stok_minimum : 0}">
+    <div class="form-err" id="pf-err"></div>
+    <div class="btn-row">
+      ${p ? `<button class="btn btn-danger" onclick="produkHapus(${p.id})">Nonaktifkan</button>` : ''}
+      <button class="btn btn-primary" onclick="produkSimpan(${p ? p.id : 'null'})">Simpan</button>
+    </div>
+    ${p ? `<div class="btn-row"><button class="btn btn-ghost" onclick="produkRestockForm(${p.id})">+ Restock stok</button></div>` : ''}
+  `);
+}
+function pfToggleManual() {
+  const v = document.getElementById('pf-resep').value;
+  document.getElementById('pf-manual-wrap').classList.toggle('hidden', !!v);
+}
+async function produkSimpan(id) {
+  const resepId = document.getElementById('pf-resep').value;
+  const payload = {
+    nama: document.getElementById('pf-nama').value.trim(),
+    resep_id: resepId ? Number(resepId) : null,
+    hpp_manual: resepId ? null : Number(document.getElementById('pf-hpp-manual').value || 0),
+    harga_jual: Number(document.getElementById('pf-harga').value),
+    stok: Number(document.getElementById('pf-stok').value || 0),
+    stok_minimum: Number(document.getElementById('pf-stok-min').value || 0),
+  };
+  try {
+    if (id) await api('/produk/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+    else await api('/produk', { method: 'POST', body: JSON.stringify(payload) });
+    tutupSheet(); toast('Produk tersimpan'); await tampilkanSubRacik();
+  } catch (e) { document.getElementById('pf-err').textContent = e.message; }
+}
+async function produkHapus(id) {
+  try { await api('/produk/' + id, { method: 'DELETE' }); tutupSheet(); toast('Produk dinonaktifkan'); await tampilkanSubRacik(); }
+  catch (e) { document.getElementById('pf-err').textContent = e.message; }
+}
+function produkRestockForm(id) {
+  bukaSheet(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>Restock stok</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <label>Jumlah masuk</label><input id="rs-qty" type="number" placeholder="0">
+    <label>Catatan (opsional)</label><input id="rs-catatan" placeholder="Contoh: Belanja bahan Senin">
+    <div class="form-err" id="rs-err"></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="produkRestockSimpan(${id})">Simpan</button></div>
+  `);
+}
+async function produkRestockSimpan(id) {
+  try {
+    await api('/produk/' + id + '/restock', { method: 'POST', body: JSON.stringify({ qty: Number(document.getElementById('rs-qty').value), catatan: document.getElementById('rs-catatan').value }) });
+    tutupSheet(); toast('Stok diperbarui'); await tampilkanSubRacik();
+  } catch (e) { document.getElementById('rs-err').textContent = e.message; }
+}
+
+// ---------- LAPORAN ----------
+async function renderLaporan() {
+  const konten = document.getElementById('konten');
+  konten.innerHTML = `
+    <div class="subtabs">
+      <button class="${STATE.periodeLaporan===7?'aktif':''}" onclick="gantiPeriodeLaporan(7)">7 Hari</button>
+      <button class="${STATE.periodeLaporan===30?'aktif':''}" onclick="gantiPeriodeLaporan(30)">30 Hari</button>
+      <button class="${STATE.periodeLaporan===90?'aktif':''}" onclick="gantiPeriodeLaporan(90)">90 Hari</button>
+    </div>
+    <div id="laporan-konten"></div>
+  `;
+  await muatLaporan();
+}
+function gantiPeriodeLaporan(n) { STATE.periodeLaporan = n; renderLaporan(); }
+async function muatLaporan() {
+  const selesai = new Date();
+  const mulai = new Date(); mulai.setDate(mulai.getDate() - (STATE.periodeLaporan - 1));
+  const fmt = d => d.toISOString().slice(0, 10);
+  const L = await api(`/laporan?mulai=${fmt(mulai)}&selesai=${fmt(selesai)}`);
+  STATE.laporan = L;
+  const maxOmzet = Math.max(1, ...L.tren_harian.map(t => t.omzet));
+  const grafik = L.tren_harian.map(t => `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+      <div style="width:100%;background:var(--teal-tint);border-radius:4px 4px 0 0;height:64px;display:flex;align-items:flex-end">
+        <div style="width:100%;background:var(--teal);border-radius:4px 4px 0 0;height:${Math.max(4,(t.omzet/maxOmzet)*64)}px"></div>
+      </div>
+      <span style="font-size:9.5px;color:var(--ink-soft)">${t.tanggal.slice(8,10)}/${t.tanggal.slice(5,7)}</span>
+    </div>`).join('');
+
+  document.getElementById('laporan-konten').innerHTML = `
+    <div class="grid-2">
+      <div class="stat"><div class="label">Omzet</div><div class="value">${rupiah(L.omzet)}</div></div>
+      <div class="stat profit"><div class="label">Profit</div><div class="value">${rupiah(L.profit)}</div></div>
+      <div class="stat"><div class="label">HPP</div><div class="value">${rupiah(L.hpp)}</div></div>
+      <div class="stat"><div class="label">Margin</div><div class="value">${L.margin_persen}%</div></div>
+    </div>
+    <div class="section-title"><h2>Tren omzet</h2><span class="hint">${L.jumlah_transaksi} transaksi</span></div>
+    <div class="card">
+      ${L.tren_harian.length ? `<div style="display:flex;gap:6px;align-items:flex-end">${grafik}</div>` : '<p style="color:var(--ink-soft);margin:0;font-size:13.5px">Belum ada transaksi di periode ini.</p>'}
+    </div>
+    <div class="section-title"><h2>Produk terlaris</h2></div>
+    <div class="card">
+      ${L.produk_terlaris.length ? L.produk_terlaris.map(p => `
+        <div class="list-row">
+          <div class="info"><b>${escapeHtml(p.nama_produk)}</b><span>${p.qty_terjual} terjual</span></div>
+          <div class="kanan">${rupiah(p.omzet)}</div>
+        </div>`).join('') : '<p style="color:var(--ink-soft);margin:0;font-size:13.5px">Belum ada data.</p>'}
+    </div>
+  `;
+}
+
+// ---------- PROFIL ----------
+function renderProfil() {
+  const konten = document.getElementById('konten');
+  konten.innerHTML = `
+    <div class="card">
+      <div class="list-row"><div class="info"><b>${escapeHtml(USER.nama_usaha)}</b><span>${escapeHtml(USER.email)}</span></div></div>
+    </div>
+    <div class="section-title"><h2>Tampilan</h2></div>
+    <div class="card">
+      <div class="switch-row">
+        <span>Mode gelap</span>
+        <label class="switch"><input type="checkbox" ${TEMA === 'gelap' ? 'checked' : ''} onchange="ubahTema(this.checked)"><span class="track"></span></label>
+      </div>
+    </div>
+    <div class="section-title"><h2>Data</h2></div>
+    <div class="card">
+      <button class="btn btn-ghost" onclick="unduhBackup()">Unduh cadangan data (JSON)</button>
+      <div class="btn-row"><button class="btn btn-danger" onclick="konfirmasiReset()">Reset semua data</button></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="keluar()">Keluar</button></div>
+  `;
+}
+function ubahTema(gelap) {
+  TEMA = gelap ? 'gelap' : 'terang';
+  document.documentElement.setAttribute('data-theme', TEMA);
+  localStorage.setItem('kh_tema', TEMA);
+}
+async function unduhBackup() {
+  const data = await api('/backup');
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cadangan-kasir-hpp-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+}
+function konfirmasiReset() {
+  bukaSheet(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-head"><h3>Reset semua data</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <p style="color:var(--brick);font-size:13.5px">Semua bahan baku, resep, produk, dan riwayat transaksi akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
+    <label>Masukkan password untuk konfirmasi</label>
+    <input id="reset-pass" type="password">
+    <div class="form-err" id="reset-err"></div>
+    <div class="btn-row"><button class="btn btn-danger" onclick="jalankanReset()">Ya, hapus semua data</button></div>
+  `);
+}
+async function jalankanReset() {
+  try {
+    await api('/reset', { method: 'POST', body: JSON.stringify({ password: document.getElementById('reset-pass').value }) });
+    tutupSheet(); toast('Semua data telah direset'); await muatSemuaData(); pindahTab('beranda');
+  } catch (e) { document.getElementById('reset-err').textContent = e.message; }
+}
+
+// ---------- Sheet / util UI ----------
+function bukaSheet(html) {
+  document.getElementById('sheet-konten').innerHTML = html;
+  document.getElementById('overlay').classList.add('terbuka');
+}
+function tutupSheet() { document.getElementById('overlay').classList.remove('terbuka'); }
+function tombolTambah(fn) { return `<div class="btn-row"><button class="btn btn-primary" onclick="${fn}">+ Tambah</button></div>`; }
+function emptyState(judul, sub) {
+  return `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M8 15c1.2 1 2.6 1.5 4 1.5s2.8-.5 4-1.5"/></svg><div style="font-weight:600;color:var(--ink);margin-bottom:4px">${judul}</div><div style="font-size:13px">${sub}</div></div>`;
+}
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s) { return escapeHtml(s); }
+
+// ---------- PWA ----------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+boot();
+</script>
+</body>
+</html>
