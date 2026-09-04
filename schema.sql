@@ -26,8 +26,10 @@ CREATE TABLE bahan_baku (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   nama TEXT NOT NULL,
-  satuan TEXT NOT NULL,              -- gr, ml, pcs, dst
-  harga_per_satuan REAL NOT NULL,    -- harga beli per 1 satuan
+  satuan TEXT NOT NULL,              -- gr, ml, pcs, dst (satuan terkecil yang dipakai di resep)
+  harga_beli REAL NOT NULL,          -- harga beli per kemasan, misal 11000 untuk 1kg
+  isi_kemasan REAL NOT NULL DEFAULT 1, -- isi kemasan dalam satuan di atas, misal 1000 (gr)
+  harga_per_satuan REAL NOT NULL,    -- hasil hitung = harga_beli / isi_kemasan, dipakai untuk HPP
   stok REAL DEFAULT 0,               -- stok bahan baku (opsional dipakai)
   stok_minimum REAL DEFAULT 0,
   updated_at TEXT DEFAULT (datetime('now')),
@@ -41,6 +43,7 @@ CREATE TABLE resep (
   nama TEXT NOT NULL,
   kategori TEXT DEFAULT 'Umum',
   catatan TEXT,
+  hasil_pcs REAL NOT NULL DEFAULT 1, -- jumlah pcs yang dihasilkan dari 1 batch/adonan resep ini
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id)
@@ -52,6 +55,9 @@ CREATE TABLE resep_bahan (
   resep_id INTEGER NOT NULL,
   bahan_id INTEGER NOT NULL,
   qty REAL NOT NULL,
+  -- 'batch'  = qty untuk 1 kali bikin adonan, biayanya dibagi rata ke "hasil_pcs" resep
+  -- 'pcs'    = qty dipakai langsung per 1 pcs (topping/isian), tidak dibagi
+  mode TEXT NOT NULL DEFAULT 'batch' CHECK (mode IN ('batch','pcs')),
   FOREIGN KEY (resep_id) REFERENCES resep(id) ON DELETE CASCADE,
   FOREIGN KEY (bahan_id) REFERENCES bahan_baku(id)
 );

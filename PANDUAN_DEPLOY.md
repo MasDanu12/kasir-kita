@@ -25,8 +25,12 @@ Buat repo baru, upload semua isi folder ini (`worker.js`, `wrangler.toml`, `sche
 3. Di menu browser, pilih **Add to Home Screen** — aplikasi akan muncul seperti app biasa dengan ikon sendiri.
 
 ## Alur pakai sehari-hari
-1. **Racik → Bahan Baku**: input semua bahan baku beserta harga beli per satuan.
-2. **Racik → Resep**: susun resep dari bahan baku + qty — HPP terhitung otomatis.
+1. **Racik → Bahan Baku**: input sesuai kemasan asli belinya — misal "Tepung terigu, satuan gr, isi kemasan 1000, harga beli 11000". Sistem otomatis hitung Rp11/gram, jadi tidak perlu hitung manual.
+2. **Racik → Resep**: susun resep dari bahan baku + qty, lalu isi **"Hasil jadi"** (misal 1kg adonan → 33 pcs). Tiap bahan ditandai:
+   - **Per batch** = bahan adonan dasar (tepung, susu, minyak, dst) → biayanya otomatis dibagi rata ke jumlah pcs
+   - **Per pcs** = topping/isian yang makainya langsung per potong (misal coklat meses 5gr/pcs) → tidak dibagi, karena memang segitu pemakaiannya
+   
+   HPP per pcs = (total biaya bahan "per batch" ÷ hasil jadi) + total biaya bahan "per pcs"
 3. **Racik → Produk Jual**: hubungkan resep ke produk yang dijual, atur harga jual & stok awal.
 4. **Kasir**: tap produk untuk transaksi, sistem otomatis mengurangi stok dan mencatat HPP + profit.
 5. **Laporan**: pantau omzet, HPP, profit, margin, dan produk terlaris per periode.

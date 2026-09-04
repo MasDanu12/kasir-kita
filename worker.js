@@ -91,14 +91,22 @@ function round2(n) {
 // ---------- HPP helper ----------
 
 async function hitungHppResep(env, resepId) {
+  const resep = await env.DB.prepare('SELECT hasil_pcs FROM resep WHERE id = ?').bind(resepId).first();
+  const hasilPcs = Number(resep?.hasil_pcs || 1) || 1;
+
   const { results } = await env.DB.prepare(
-    `SELECT rb.qty, b.harga_per_satuan
+    `SELECT rb.qty, rb.mode, b.harga_per_satuan
      FROM resep_bahan rb JOIN bahan_baku b ON b.id = rb.bahan_id
      WHERE rb.resep_id = ?`
   ).bind(resepId).all();
-  let total = 0;
-  for (const r of results) total += Number(r.qty) * Number(r.harga_per_satuan);
-  return round2(total);
+
+  let biayaBatch = 0, biayaPcs = 0;
+  for (const r of results) {
+    const biaya = Number(r.qty) * Number(r.harga_per_satuan);
+    if (r.mode === 'pcs') biayaPcs += biaya; else biayaBatch += biaya;
+  }
+  // Biaya adonan/batch dibagi rata ke jumlah pcs hasil jadi; biaya per-pcs (topping/isian) ditambahkan langsung
+  return round2(biayaBatch / hasilPcs + biayaPcs);
 }
 
 async function hitungHppProduk(env, produk) {
@@ -160,21 +168,25 @@ route('GET', '/api/bahan', async (req, env, u) => {
 
 route('POST', '/api/bahan', async (req, env, u) => {
   const b = await req.json();
-  if (!b.nama || !b.satuan || b.harga_per_satuan == null) return err('Nama, satuan, dan harga wajib diisi');
+  if (!b.nama || !b.satuan || b.harga_beli == null) return err('Nama, satuan, dan harga wajib diisi');
+  const isiKemasan = Number(b.isi_kemasan) || 1;
+  const hargaPerSatuan = round2(Number(b.harga_beli) / isiKemasan);
   const res = await env.DB.prepare(
-    'INSERT INTO bahan_baku (user_id, nama, satuan, harga_per_satuan, stok, stok_minimum) VALUES (?, ?, ?, ?, ?, ?)'
-  ).bind(u.uid, b.nama.trim(), b.satuan.trim(), b.harga_per_satuan, b.stok || 0, b.stok_minimum || 0).run();
-  return json({ id: res.meta.last_row_id });
+    'INSERT INTO bahan_baku (user_id, nama, satuan, harga_beli, isi_kemasan, harga_per_satuan, stok, stok_minimum) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+  ).bind(u.uid, b.nama.trim(), b.satuan.trim(), b.harga_beli, isiKemasan, hargaPerSatuan, b.stok || 0, b.stok_minimum || 0).run();
+  return json({ id: res.meta.last_row_id, harga_per_satuan: hargaPerSatuan });
 });
 
 route('PUT', '/api/bahan/:id', async (req, env, u, params) => {
   const b = await req.json();
   const existing = await env.DB.prepare('SELECT id FROM bahan_baku WHERE id = ? AND user_id = ?').bind(params.id, u.uid).first();
   if (!existing) return err('Bahan tidak ditemukan', 404);
+  const isiKemasan = Number(b.isi_kemasan) || 1;
+  const hargaPerSatuan = round2(Number(b.harga_beli) / isiKemasan);
   await env.DB.prepare(
-    `UPDATE bahan_baku SET nama=?, satuan=?, harga_per_satuan=?, stok=?, stok_minimum=?, updated_at=datetime('now') WHERE id=?`
-  ).bind(b.nama, b.satuan, b.harga_per_satuan, b.stok || 0, b.stok_minimum || 0, params.id).run();
-  return json({ ok: true });
+    `UPDATE bahan_baku SET nama=?, satuan=?, harga_beli=?, isi_kemasan=?, harga_per_satuan=?, stok=?, stok_minimum=?, updated_at=datetime('now') WHERE id=?`
+  ).bind(b.nama, b.satuan, b.harga_beli, isiKemasan, hargaPerSatuan, b.stok || 0, b.stok_minimum || 0, params.id).run();
+  return json({ ok: true, harga_per_satuan: hargaPerSatuan });
 });
 
 route('DELETE', '/api/bahan/:id', async (req, env, u, params) => {
@@ -195,7 +207,7 @@ route('GET', '/api/resep/:id', async (req, env, u, params) => {
   const r = await env.DB.prepare('SELECT * FROM resep WHERE id = ? AND user_id = ?').bind(params.id, u.uid).first();
   if (!r) return err('Resep tidak ditemukan', 404);
   const { results: bahan } = await env.DB.prepare(
-    `SELECT rb.id, rb.bahan_id, rb.qty, b.nama AS nama_bahan, b.satuan, b.harga_per_satuan
+    `SELECT rb.id, rb.bahan_id, rb.qty, rb.mode, b.nama AS nama_bahan, b.satuan, b.harga_per_satuan
      FROM resep_bahan rb JOIN bahan_baku b ON b.id = rb.bahan_id WHERE rb.resep_id = ?`
   ).bind(params.id).all();
   r.bahan = bahan;
@@ -208,13 +220,14 @@ route('POST', '/api/resep', async (req, env, u) => {
   if (!b.nama || !Array.isArray(b.bahan) || b.bahan.length === 0) {
     return err('Nama resep dan minimal 1 bahan wajib diisi');
   }
+  const hasilPcs = Number(b.hasil_pcs) || 1;
   const res = await env.DB.prepare(
-    'INSERT INTO resep (user_id, nama, kategori, catatan) VALUES (?, ?, ?, ?)'
-  ).bind(u.uid, b.nama.trim(), b.kategori || 'Umum', b.catatan || null).run();
+    'INSERT INTO resep (user_id, nama, kategori, catatan, hasil_pcs) VALUES (?, ?, ?, ?, ?)'
+  ).bind(u.uid, b.nama.trim(), b.kategori || 'Umum', b.catatan || null, hasilPcs).run();
   const resepId = res.meta.last_row_id;
   for (const item of b.bahan) {
-    await env.DB.prepare('INSERT INTO resep_bahan (resep_id, bahan_id, qty) VALUES (?, ?, ?)')
-      .bind(resepId, item.bahan_id, item.qty).run();
+    await env.DB.prepare('INSERT INTO resep_bahan (resep_id, bahan_id, qty, mode) VALUES (?, ?, ?, ?)')
+      .bind(resepId, item.bahan_id, item.qty, item.mode === 'pcs' ? 'pcs' : 'batch').run();
   }
   return json({ id: resepId, hpp: await hitungHppResep(env, resepId) });
 });
@@ -223,13 +236,14 @@ route('PUT', '/api/resep/:id', async (req, env, u, params) => {
   const b = await req.json();
   const existing = await env.DB.prepare('SELECT id FROM resep WHERE id = ? AND user_id = ?').bind(params.id, u.uid).first();
   if (!existing) return err('Resep tidak ditemukan', 404);
-  await env.DB.prepare(`UPDATE resep SET nama=?, kategori=?, catatan=?, updated_at=datetime('now') WHERE id=?`)
-    .bind(b.nama, b.kategori || 'Umum', b.catatan || null, params.id).run();
+  const hasilPcs = Number(b.hasil_pcs) || 1;
+  await env.DB.prepare(`UPDATE resep SET nama=?, kategori=?, catatan=?, hasil_pcs=?, updated_at=datetime('now') WHERE id=?`)
+    .bind(b.nama, b.kategori || 'Umum', b.catatan || null, hasilPcs, params.id).run();
   if (Array.isArray(b.bahan)) {
     await env.DB.prepare('DELETE FROM resep_bahan WHERE resep_id = ?').bind(params.id).run();
     for (const item of b.bahan) {
-      await env.DB.prepare('INSERT INTO resep_bahan (resep_id, bahan_id, qty) VALUES (?, ?, ?)')
-        .bind(params.id, item.bahan_id, item.qty).run();
+      await env.DB.prepare('INSERT INTO resep_bahan (resep_id, bahan_id, qty, mode) VALUES (?, ?, ?, ?)')
+        .bind(params.id, item.bahan_id, item.qty, item.mode === 'pcs' ? 'pcs' : 'batch').run();
     }
   }
   return json({ hpp: await hitungHppResep(env, params.id) });
