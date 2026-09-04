@@ -245,9 +245,10 @@
   }
   .toast.tampil{ opacity:1; bottom:calc(110px + var(--safe-b)); }
 
-  .bahan-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
-  .bahan-row select{ flex:2; } .bahan-row input{ flex:1; }
-  .bahan-row button{ background:none; border:none; color:var(--brick); width:30px; }
+  .bahan-row{ display:flex; gap:6px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .bahan-row select:first-child{ flex:2 1 100%; } .bahan-row input{ flex:1; min-width:0; }
+  .bahan-row select:not(:first-child){ flex:1; min-width:0; }
+  .bahan-row button{ background:none; border:none; color:var(--brick); width:26px; flex:0 0 auto; }
 
   .switch-row{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); }
   .switch{ position:relative; width:42px; height:24px; }
@@ -613,7 +614,7 @@ function daftarBahan() {
   if (!STATE.bahan.length) return emptyState('Belum ada bahan baku', 'Tambahkan bahan baku pertama untuk mulai menyusun resep.') + tombolTambah('bahanFormBaru()');
   return `<div class="card">${STATE.bahan.map(b => `
     <div class="list-row">
-      <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_per_satuan)} / ${escapeHtml(b.satuan)}</span></div>
+      <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_beli)} / ${b.isi_kemasan} ${escapeHtml(b.satuan)} · ${rupiah(b.harga_per_satuan)} per ${escapeHtml(b.satuan)}</span></div>
       <button class="btn btn-sm btn-ghost" onclick="bahanFormEdit(${b.id})">Ubah</button>
     </div>`).join('')}</div>${tombolTambah('bahanFormBaru()')}`;
 }
@@ -623,12 +624,15 @@ function bahanForm(b) {
   bukaSheet(`
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>${b ? 'Ubah' : 'Tambah'} Bahan Baku</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
-    <label>Nama bahan</label><input id="bf-nama" value="${b ? escapeAttr(b.nama) : ''}" placeholder="Contoh: Tepung terigu">
+    <label>Nama bahan</label><input id="bf-nama" value="${b ? escapeAttr(b.nama) : ''}" placeholder="Contoh: Tepung terigu Cakra Kembar">
     <div class="grid-2">
-      <div><label>Satuan</label><input id="bf-satuan" value="${b ? escapeAttr(b.satuan) : ''}" placeholder="gr / ml / pcs"></div>
-      <div><label>Harga per satuan</label><input id="bf-harga" type="number" value="${b ? b.harga_per_satuan : ''}" placeholder="0"></div>
+      <div><label>Satuan terkecil</label><input id="bf-satuan" value="${b ? escapeAttr(b.satuan) : 'gr'}" placeholder="gr / ml / pcs" oninput="bahanPreview()"></div>
+      <div><label>Isi kemasan</label><input id="bf-isi" type="number" value="${b ? b.isi_kemasan : 1000}" placeholder="1000" oninput="bahanPreview()"></div>
     </div>
-    <div class="grid-2">
+    <label>Harga beli per kemasan</label>
+    <input id="bf-harga-beli" type="number" value="${b ? b.harga_beli : ''}" placeholder="Contoh: 11000" oninput="bahanPreview()">
+    <div class="stat" style="margin-top:10px"><div class="label">Harga per satuan (otomatis)</div><div class="value" id="bf-preview">Rp 0</div></div>
+    <div class="grid-2" style="margin-top:12px">
       <div><label>Stok (opsional)</label><input id="bf-stok" type="number" value="${b ? b.stok : 0}"></div>
       <div><label>Stok minimum</label><input id="bf-stok-min" type="number" value="${b ? b.stok_minimum : 0}"></div>
     </div>
@@ -638,12 +642,21 @@ function bahanForm(b) {
       <button class="btn btn-primary" onclick="bahanSimpan(${b ? b.id : 'null'})">Simpan</button>
     </div>
   `);
+  bahanPreview();
+}
+function bahanPreview() {
+  const isi = Number(document.getElementById('bf-isi').value) || 1;
+  const hargaBeli = Number(document.getElementById('bf-harga-beli').value) || 0;
+  const satuan = document.getElementById('bf-satuan').value || 'satuan';
+  const perSatuan = isi > 0 ? hargaBeli / isi : 0;
+  document.getElementById('bf-preview').textContent = rupiah(perSatuan) + ' / ' + satuan;
 }
 async function bahanSimpan(id) {
   const payload = {
     nama: document.getElementById('bf-nama').value.trim(),
     satuan: document.getElementById('bf-satuan').value.trim(),
-    harga_per_satuan: Number(document.getElementById('bf-harga').value),
+    harga_beli: Number(document.getElementById('bf-harga-beli').value),
+    isi_kemasan: Number(document.getElementById('bf-isi').value) || 1,
     stok: Number(document.getElementById('bf-stok').value || 0),
     stok_minimum: Number(document.getElementById('bf-stok-min').value || 0),
   };
@@ -662,18 +675,20 @@ function daftarResep() {
   if (!STATE.resep.length) return emptyState('Belum ada resep', 'Susun resep dari bahan baku untuk menghitung HPP otomatis.') + tombolTambah('resepFormBaru()');
   return `<div class="card">${STATE.resep.map(r => `
     <div class="list-row">
-      <div class="info"><b>${escapeHtml(r.nama)}</b><span>${escapeHtml(r.kategori)}</span></div>
+      <div class="info"><b>${escapeHtml(r.nama)}</b><span>${escapeHtml(r.kategori)} · hasil ${r.hasil_pcs} pcs</span></div>
       <div style="text-align:right">
-        <div class="kanan">${rupiah(r.hpp)}</div>
+        <div class="kanan">${rupiah(r.hpp)}<span style="font-weight:400;color:var(--ink-soft);font-size:11px">/pcs</span></div>
         <button class="btn btn-sm btn-ghost" onclick="resepFormEdit(${r.id})">Ubah</button>
       </div>
     </div>`).join('')}</div>${tombolTambah('resepFormBaru()')}`;
 }
 let resepBahanBaris = [];
-function resepFormBaru() { resepBahanBaris = [{ bahan_id: '', qty: '' }]; resepForm(null); }
+let resepHasilPcs = 1;
+function resepFormBaru() { resepBahanBaris = [{ bahan_id: '', qty: '', mode: 'batch' }]; resepHasilPcs = 1; resepForm(null); }
 async function resepFormEdit(id) {
   const r = await api('/resep/' + id);
-  resepBahanBaris = r.bahan.map(b => ({ bahan_id: b.bahan_id, qty: b.qty }));
+  resepBahanBaris = r.bahan.map(b => ({ bahan_id: b.bahan_id, qty: b.qty, mode: b.mode || 'batch' }));
+  resepHasilPcs = r.hasil_pcs || 1;
   resepForm(r);
 }
 function opsiBahan(selectedId) {
@@ -684,12 +699,19 @@ function resepForm(r) {
   bukaSheet(`
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>${r ? 'Ubah' : 'Tambah'} Resep</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
-    <label>Nama resep / produk</label><input id="rf-nama" value="${r ? escapeAttr(r.nama) : ''}" placeholder="Contoh: Es Kopi Susu">
+    <label>Nama resep / produk</label><input id="rf-nama" value="${r ? escapeAttr(r.nama) : ''}" placeholder="Contoh: Roti Coklat Meses">
     <label>Kategori</label><input id="rf-kategori" value="${r ? escapeAttr(r.kategori) : 'Umum'}">
+    <label>Hasil jadi dari 1 adonan/batch</label>
+    <input id="rf-hasil-pcs" type="number" value="${r ? r.hasil_pcs : 1}" placeholder="Contoh: 33" oninput="resepHasilPcs=Number(this.value)||1; previewHpp()">
+    <div style="font-size:12px;color:var(--ink-soft);margin-top:-8px;margin-bottom:4px">Contoh: 1kg adonan jadi 33 pcs roti → isi 33</div>
     <label style="margin-top:16px">Komposisi bahan</label>
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px">
+      <span class="chip">Per batch</span> = bahan adonan (dibagi rata ke semua pcs) ·
+      <span class="chip mustard">Per pcs</span> = topping/isian (dipakai langsung tiap pcs)
+    </div>
     <div id="rf-bahan-list"></div>
     <button class="btn btn-sm btn-ghost" style="margin-top:4px" onclick="resepTambahBaris()">+ Tambah bahan</button>
-    <div class="stat" style="margin-top:14px"><div class="label">Perkiraan HPP</div><div class="value" id="rf-hpp-preview">Rp 0</div></div>
+    <div class="stat" style="margin-top:14px"><div class="label">Perkiraan HPP per pcs</div><div class="value" id="rf-hpp-preview">Rp 0</div></div>
     <div class="form-err" id="rf-err"></div>
     <div class="btn-row">
       ${r ? `<button class="btn btn-danger" onclick="resepHapus(${r.id})">Hapus</button>` : ''}
@@ -704,27 +726,37 @@ function renderBarisResep() {
     <div class="bahan-row">
       <select onchange="resepBahanBaris[${i}].bahan_id=this.value; previewHpp()">${'<option value="">Pilih bahan</option>' + opsiBahan(row.bahan_id)}</select>
       <input type="number" placeholder="Qty" value="${row.qty}" oninput="resepBahanBaris[${i}].qty=this.value; previewHpp()">
+      <select style="flex:1" onchange="resepBahanBaris[${i}].mode=this.value; previewHpp()">
+        <option value="batch" ${row.mode !== 'pcs' ? 'selected' : ''}>Per batch</option>
+        <option value="pcs" ${row.mode === 'pcs' ? 'selected' : ''}>Per pcs</option>
+      </select>
       <button onclick="resepHapusBaris(${i})">✕</button>
     </div>`).join('');
   previewHpp();
 }
-function resepTambahBaris() { resepBahanBaris.push({ bahan_id: '', qty: '' }); renderBarisResep(); }
+function resepTambahBaris() { resepBahanBaris.push({ bahan_id: '', qty: '', mode: 'batch' }); renderBarisResep(); }
 function resepHapusBaris(i) { resepBahanBaris.splice(i, 1); renderBarisResep(); }
 function previewHpp() {
-  let total = 0;
+  let biayaBatch = 0, biayaPcs = 0;
   for (const row of resepBahanBaris) {
     const b = STATE.bahan.find(x => x.id == row.bahan_id);
-    if (b && row.qty) total += Number(row.qty) * b.harga_per_satuan;
+    if (b && row.qty) {
+      const biaya = Number(row.qty) * b.harga_per_satuan;
+      if (row.mode === 'pcs') biayaPcs += biaya; else biayaBatch += biaya;
+    }
   }
+  const hasil = resepHasilPcs || 1;
+  const hppPerPcs = biayaBatch / hasil + biayaPcs;
   const el = document.getElementById('rf-hpp-preview');
-  if (el) el.textContent = rupiah(total);
+  if (el) el.textContent = rupiah(hppPerPcs);
 }
 async function resepSimpan(id) {
   const bahanValid = resepBahanBaris.filter(r => r.bahan_id && r.qty);
   const payload = {
     nama: document.getElementById('rf-nama').value.trim(),
     kategori: document.getElementById('rf-kategori').value.trim() || 'Umum',
-    bahan: bahanValid.map(r => ({ bahan_id: Number(r.bahan_id), qty: Number(r.qty) })),
+    hasil_pcs: Number(document.getElementById('rf-hasil-pcs').value) || 1,
+    bahan: bahanValid.map(r => ({ bahan_id: Number(r.bahan_id), qty: Number(r.qty), mode: r.mode === 'pcs' ? 'pcs' : 'batch' })),
   };
   try {
     if (id) await api('/resep/' + id, { method: 'PUT', body: JSON.stringify(payload) });
