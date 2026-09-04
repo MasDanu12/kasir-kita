@@ -614,9 +614,25 @@ function daftarBahan() {
   if (!STATE.bahan.length) return emptyState('Belum ada bahan baku', 'Tambahkan bahan baku pertama untuk mulai menyusun resep.') + tombolTambah('bahanFormBaru()');
   return `<div class="card">${STATE.bahan.map(b => `
     <div class="list-row">
-      <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_beli)} / ${b.isi_kemasan} ${escapeHtml(b.satuan)} · ${rupiah(b.harga_per_satuan)} per ${escapeHtml(b.satuan)}</span></div>
+      <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_beli)} / ${b.isi_kemasan}${escapeHtml(b.satuan)} · ${rupiah(b.harga_per_satuan)}/${escapeHtml(b.satuan)}</span></div>
       <button class="btn btn-sm btn-ghost" onclick="bahanFormEdit(${b.id})">Ubah</button>
     </div>`).join('')}</div>${tombolTambah('bahanFormBaru()')}`;
+}
+
+// Satuan kemasan yang bisa dipilih user -> dikonversi ke satuan dasar (gr/ml/pcs) yang dipakai di resep
+const SATUAN_KEMASAN = [
+  { label: 'Gram (g)', dasar: 'gr', kali: 1 },
+  { label: 'Kilogram (kg)', dasar: 'gr', kali: 1000 },
+  { label: 'Mililiter (ml)', dasar: 'ml', kali: 1 },
+  { label: 'Liter (l)', dasar: 'ml', kali: 1000 },
+  { label: 'Pcs / Butir', dasar: 'pcs', kali: 1 },
+];
+function opsiSatuanKemasan(satuanDasarTerpilih) {
+  // saat edit, cocokkan ke opsi dg satuan dasar sama & kali=1 (tampil sesuai satuan dasar tersimpan)
+  return SATUAN_KEMASAN.map((s, i) => {
+    const cocok = satuanDasarTerpilih ? (s.dasar === satuanDasarTerpilih && s.kali === 1) : (i === 0);
+    return `<option value="${i}" ${cocok ? 'selected' : ''}>${s.label}</option>`;
+  }).join('');
 }
 function bahanFormBaru() { bahanForm(null); }
 function bahanFormEdit(id) { bahanForm(STATE.bahan.find(b => b.id === id)); }
@@ -625,11 +641,12 @@ function bahanForm(b) {
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>${b ? 'Ubah' : 'Tambah'} Bahan Baku</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
     <label>Nama bahan</label><input id="bf-nama" value="${b ? escapeAttr(b.nama) : ''}" placeholder="Contoh: Tepung terigu Cakra Kembar">
+    <label>Ukuran kemasan yang dibeli</label>
     <div class="grid-2">
-      <div><label>Satuan terkecil</label><input id="bf-satuan" value="${b ? escapeAttr(b.satuan) : 'gr'}" placeholder="gr / ml / pcs" oninput="bahanPreview()"></div>
-      <div><label>Isi kemasan</label><input id="bf-isi" type="number" value="${b ? b.isi_kemasan : 1000}" placeholder="1000" oninput="bahanPreview()"></div>
+      <input id="bf-jumlah" type="number" value="${b ? b.isi_kemasan : ''}" placeholder="Contoh: 1" oninput="bahanPreview()">
+      <select id="bf-satuan-pilih" onchange="bahanPreview()">${opsiSatuanKemasan(b ? b.satuan : null)}</select>
     </div>
-    <label>Harga beli per kemasan</label>
+    <label>Harga beli per kemasan itu</label>
     <input id="bf-harga-beli" type="number" value="${b ? b.harga_beli : ''}" placeholder="Contoh: 11000" oninput="bahanPreview()">
     <div class="stat" style="margin-top:10px"><div class="label">Harga per satuan (otomatis)</div><div class="value" id="bf-preview">Rp 0</div></div>
     <div class="grid-2" style="margin-top:12px">
@@ -644,19 +661,24 @@ function bahanForm(b) {
   `);
   bahanPreview();
 }
+function bahanKonversiSekarang() {
+  const opsi = SATUAN_KEMASAN[Number(document.getElementById('bf-satuan-pilih').value)];
+  const jumlah = Number(document.getElementById('bf-jumlah').value) || 0;
+  return { satuanDasar: opsi.dasar, isiDasar: jumlah * opsi.kali };
+}
 function bahanPreview() {
-  const isi = Number(document.getElementById('bf-isi').value) || 1;
   const hargaBeli = Number(document.getElementById('bf-harga-beli').value) || 0;
-  const satuan = document.getElementById('bf-satuan').value || 'satuan';
-  const perSatuan = isi > 0 ? hargaBeli / isi : 0;
-  document.getElementById('bf-preview').textContent = rupiah(perSatuan) + ' / ' + satuan;
+  const { satuanDasar, isiDasar } = bahanKonversiSekarang();
+  const perSatuan = isiDasar > 0 ? hargaBeli / isiDasar : 0;
+  document.getElementById('bf-preview').textContent = rupiah(perSatuan) + ' / ' + satuanDasar;
 }
 async function bahanSimpan(id) {
+  const { satuanDasar, isiDasar } = bahanKonversiSekarang();
   const payload = {
     nama: document.getElementById('bf-nama').value.trim(),
-    satuan: document.getElementById('bf-satuan').value.trim(),
+    satuan: satuanDasar,
     harga_beli: Number(document.getElementById('bf-harga-beli').value),
-    isi_kemasan: Number(document.getElementById('bf-isi').value) || 1,
+    isi_kemasan: isiDasar || 1,
     stok: Number(document.getElementById('bf-stok').value || 0),
     stok_minimum: Number(document.getElementById('bf-stok-min').value || 0),
   };
