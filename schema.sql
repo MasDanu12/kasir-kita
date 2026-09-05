@@ -1,17 +1,18 @@
--- Skema database "Kasir HPP" — Cloudflare D1
--- Jalankan lewat: wrangler d1 execute kasir_hpp --remote --file=./schema.sql
--- (atau tempel isi file ini di tab "Console" D1 pada Cloudflare Dashboard)
+-- Skema database "Kasir HPP" — versi 2 (Bahan Baku → Master Resep → Varian Menu)
+-- Cloudflare D1. Jalankan lewat Console D1 di Cloudflare Dashboard.
+-- PERINGATAN: ini struktur baru total, data lama (resep/produk versi 1) tidak ikut pindah.
 
 DROP TABLE IF EXISTS stok_log;
 DROP TABLE IF EXISTS transaksi_item;
 DROP TABLE IF EXISTS transaksi;
-DROP TABLE IF EXISTS produk;
+DROP TABLE IF EXISTS varian_topping;
+DROP TABLE IF EXISTS varian;
 DROP TABLE IF EXISTS resep_bahan;
 DROP TABLE IF EXISTS resep;
 DROP TABLE IF EXISTS bahan_baku;
 DROP TABLE IF EXISTS users;
 
--- Akun pemilik/pengguna aplikasi
+-- Akun pemilik usaha
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT UNIQUE NOT NULL,
@@ -21,65 +22,91 @@ CREATE TABLE users (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
--- Bahan baku dasar (gula, tepung, cup, dsb)
+-- ============ 1. MASTER BAHAN BAKU ============
+-- Database harga patokan semua bahan: adonan, topping, maupun kemasan.
 CREATE TABLE bahan_baku (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   nama TEXT NOT NULL,
-  satuan TEXT NOT NULL,              -- gr, ml, pcs, dst (satuan terkecil yang dipakai di resep)
-  harga_beli REAL NOT NULL,          -- harga beli per kemasan, misal 11000 untuk 1kg
-  isi_kemasan REAL NOT NULL DEFAULT 1, -- isi kemasan dalam satuan di atas, misal 1000 (gr)
-  harga_per_satuan REAL NOT NULL,    -- hasil hitung = harga_beli / isi_kemasan, dipakai untuk HPP
-  stok REAL DEFAULT 0,               -- stok bahan baku (opsional dipakai)
+  kategori TEXT NOT NULL DEFAULT 'adonan' CHECK (kategori IN ('adonan','topping','kemasan')),
+  satuan TEXT NOT NULL,                 -- satuan dasar: gr, ml, pcs
+  harga_beli REAL NOT NULL,             -- harga beli per kemasan, misal 11000 untuk 1kg
+  isi_kemasan REAL NOT NULL DEFAULT 1,  -- isi kemasan dalam satuan dasar, misal 1000 (gr)
+  harga_per_satuan REAL NOT NULL,       -- = harga_beli / isi_kemasan
+  stok REAL DEFAULT 0,
   stok_minimum REAL DEFAULT 0,
   updated_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+CREATE INDEX idx_bahan_user ON bahan_baku(user_id);
 
--- Resep = blueprint komposisi bahan untuk satu produk
+-- ============ 2. MASTER RESEP ============
+-- Takaran/komposisi bahan adonan dasar. HPP dihitung per gram adonan.
+-- total_berat diisi MANUAL (hasil timbangan asli adonan jadi), bukan auto-sum bahan mentah,
+-- karena satuan bahan bisa campur (gr/ml/pcs) dan ada penyusutan saat diolah.
 CREATE TABLE resep (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   nama TEXT NOT NULL,
-  kategori TEXT DEFAULT 'Umum',
   catatan TEXT,
-  hasil_pcs REAL NOT NULL DEFAULT 1, -- jumlah pcs yang dihasilkan dari 1 batch/adonan resep ini
+  total_berat REAL NOT NULL DEFAULT 0,
+  total_biaya REAL NOT NULL DEFAULT 0,
+  hpp_per_gram REAL NOT NULL DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+CREATE INDEX idx_resep_user ON resep(user_id);
 
--- Rincian bahan + qty per resep (untuk hitung HPP otomatis)
+-- Komposisi bahan per Master Resep. harga_satuan_saat_itu = snapshot harga bahan saat
+-- resep dibuat/terakhir dihitung ulang -> dipakai untuk deteksi "harga berubah".
 CREATE TABLE resep_bahan (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   resep_id INTEGER NOT NULL,
   bahan_id INTEGER NOT NULL,
   qty REAL NOT NULL,
-  -- 'batch'  = qty untuk 1 kali bikin adonan, biayanya dibagi rata ke "hasil_pcs" resep
-  -- 'pcs'    = qty dipakai langsung per 1 pcs (topping/isian), tidak dibagi
-  mode TEXT NOT NULL DEFAULT 'batch' CHECK (mode IN ('batch','pcs')),
+  harga_satuan_saat_itu REAL NOT NULL,
+  biaya REAL NOT NULL,
   FOREIGN KEY (resep_id) REFERENCES resep(id) ON DELETE CASCADE,
   FOREIGN KEY (bahan_id) REFERENCES bahan_baku(id)
 );
 
--- Produk yang dijual di kasir (terhubung ke resep untuk HPP)
-CREATE TABLE produk (
+-- ============ 3. VARIAN MENU ============
+-- Turunan dari 1 Master Resep + topping/kemasan tambahan. Ini yang jadi produk kasir.
+CREATE TABLE varian (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
-  resep_id INTEGER,                  -- boleh NULL kalau produk tanpa resep (HPP manual)
+  resep_id INTEGER NOT NULL,
   nama TEXT NOT NULL,
-  hpp_manual REAL,                   -- dipakai kalau resep_id NULL
-  harga_jual REAL NOT NULL,
+  berat_gram REAL NOT NULL,
+  hpp_per_gram_saat_itu REAL NOT NULL,
+  biaya_adonan REAL NOT NULL,
+  biaya_topping REAL NOT NULL DEFAULT 0,
+  hpp_final REAL NOT NULL,
+  harga_jual REAL NOT NULL DEFAULT 0,
   stok REAL DEFAULT 0,
   stok_minimum REAL DEFAULT 0,
   aktif INTEGER DEFAULT 1,
   urutan INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (resep_id) REFERENCES resep(id)
 );
+CREATE INDEX idx_varian_user ON varian(user_id);
 
--- Satu transaksi kasir (satu struk)
+CREATE TABLE varian_topping (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  varian_id INTEGER NOT NULL,
+  bahan_id INTEGER NOT NULL,
+  qty REAL NOT NULL,
+  harga_satuan_saat_itu REAL NOT NULL,
+  biaya REAL NOT NULL,
+  FOREIGN KEY (varian_id) REFERENCES varian(id) ON DELETE CASCADE,
+  FOREIGN KEY (bahan_id) REFERENCES bahan_baku(id)
+);
+
+-- ============ KASIR ============
 CREATE TABLE transaksi (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
@@ -88,38 +115,32 @@ CREATE TABLE transaksi (
   total_hpp REAL NOT NULL,
   total_profit REAL NOT NULL,
   metode_bayar TEXT DEFAULT 'Tunai',
-  status TEXT DEFAULT 'selesai',     -- selesai / dibatalkan
+  status TEXT DEFAULT 'selesai',
   catatan TEXT,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+CREATE INDEX idx_transaksi_user_waktu ON transaksi(user_id, waktu);
 
--- Item per transaksi, snapshot harga & HPP saat itu (harga bisa berubah nanti)
 CREATE TABLE transaksi_item (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   transaksi_id INTEGER NOT NULL,
-  produk_id INTEGER NOT NULL,
-  nama_produk TEXT NOT NULL,
+  varian_id INTEGER NOT NULL,
+  nama_varian TEXT NOT NULL,
   qty REAL NOT NULL,
   harga_satuan REAL NOT NULL,
   hpp_satuan REAL NOT NULL,
   FOREIGN KEY (transaksi_id) REFERENCES transaksi(id) ON DELETE CASCADE,
-  FOREIGN KEY (produk_id) REFERENCES produk(id)
+  FOREIGN KEY (varian_id) REFERENCES varian(id)
 );
+CREATE INDEX idx_transaksi_item_transaksi ON transaksi_item(transaksi_id);
 
--- Riwayat perubahan stok produk (jual, restock, koreksi)
 CREATE TABLE stok_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  produk_id INTEGER NOT NULL,
-  perubahan REAL NOT NULL,           -- negatif = keluar, positif = masuk
-  jenis TEXT NOT NULL,               -- jual / restock / koreksi / batal
+  varian_id INTEGER NOT NULL,
+  perubahan REAL NOT NULL,
+  jenis TEXT NOT NULL,
   catatan TEXT,
   waktu TEXT DEFAULT (datetime('now')),
-  FOREIGN KEY (produk_id) REFERENCES produk(id)
+  FOREIGN KEY (varian_id) REFERENCES varian(id)
 );
-
-CREATE INDEX idx_bahan_user ON bahan_baku(user_id);
-CREATE INDEX idx_resep_user ON resep(user_id);
-CREATE INDEX idx_produk_user ON produk(user_id);
-CREATE INDEX idx_transaksi_user_waktu ON transaksi(user_id, waktu);
-CREATE INDEX idx_transaksi_item_transaksi ON transaksi_item(transaksi_id);
-CREATE INDEX idx_stok_log_produk ON stok_log(produk_id);
+CREATE INDEX idx_stok_log_varian ON stok_log(varian_id);

@@ -1,42 +1,53 @@
-# Panduan Deploy — Kasir HPP (tanpa laptop/terminal)
+# Panduan Deploy — Kasir HPP v2 (tanpa laptop/terminal)
 
-Aplikasi ini adalah **PWA** (bisa di-"Add to Home Screen" seperti app), berjalan di **Cloudflare Workers + D1**, sama seperti pola Dompetku yang sudah kamu pakai. Semua langkah bisa dari HP lewat Cloudflare Dashboard.
+Struktur v2: **Master Bahan Baku → Master Resep → Varian Menu → Kasir**. Ini rombakan total dari versi sebelumnya — kalau sudah pernah deploy versi lama, jalankan ulang `schema.sql` (data lama akan hilang, drop total).
 
 ## 1. Upload ke GitHub
-Buat repo baru, upload semua isi folder ini (`worker.js`, `wrangler.toml`, `schema.sql`, folder `public/`).
+Timpa isi repo dengan semua file di paket ini (`worker.js`, `wrangler.toml`, `schema.sql`, folder `public/`).
 
-## 2. Buat database D1
-1. Buka **dash.cloudflare.com** → **Workers & Pages** → **D1**.
-2. Klik **Create database**, beri nama `kasir_hpp`.
-3. Buka tab **Console** database tersebut, tempel isi `schema.sql`, jalankan.
-4. Salin **Database ID** yang muncul.
+## 2. Jalankan schema.sql di Console D1
+Buka **dash.cloudflare.com** → **Workers & Pages** → **D1** → database `kasir_hpp` → tab **Console**. Tempel isi `schema.sql`, jalankan. (Kalau Console menolak banyak perintah sekaligus, minta potongan per tabel — saya bisa kirim ulang di chat.)
 
-## 3. Buat Worker & hubungkan ke GitHub
-1. **Workers & Pages** → **Create** → **Workers** → hubungkan ke repo GitHub tadi.
-2. Cloudflare otomatis mendeteksi `wrangler.toml`.
-3. Di pengaturan Worker, buka **Settings → Variables**:
-   - Tambahkan **D1 Database binding**: nama `DB`, pilih database `kasir_hpp` (ini menggantikan `database_id` placeholder di `wrangler.toml`).
-   - Tambahkan **environment variable** `JWT_SECRET` dengan teks acak panjang (contoh: kombinasi huruf-angka 40 karakter, buat sendiri, jangan dibagikan).
-4. Deploy.
+## 3. Deploy Worker
+Worker yang sudah terhubung ke GitHub akan otomatis re-deploy begitu kamu push perubahan. Pastikan binding `DB` (D1) dan variabel `JWT_SECRET` di Settings Worker masih ada seperti sebelumnya.
 
-## 4. Buka aplikasi & daftar akun
-1. Buka URL Worker kamu (contoh `kasir-hpp.<nama>.workers.dev`) di browser HP.
-2. Tap tab **Daftar Usaha Baru**, isi email, password, dan nama usaha.
-3. Di menu browser, pilih **Add to Home Screen** — aplikasi akan muncul seperti app biasa dengan ikon sendiri.
+## 4. Buka aplikasi
+Data lama (bahan/resep/produk versi sebelumnya) **tidak ikut pindah**. Mulai input dari awal sesuai urutan berikut.
 
-## Alur pakai sehari-hari
-1. **Racik → Bahan Baku**: input sesuai kemasan asli belinya — misal "Tepung terigu, satuan gr, isi kemasan 1000, harga beli 11000". Sistem otomatis hitung Rp11/gram, jadi tidak perlu hitung manual.
-2. **Racik → Resep**: susun resep dari bahan baku + qty, lalu isi **"Hasil jadi"** (misal 1kg adonan → 33 pcs). Tiap bahan ditandai:
-   - **Per batch** = bahan adonan dasar (tepung, susu, minyak, dst) → biayanya otomatis dibagi rata ke jumlah pcs
-   - **Per pcs** = topping/isian yang makainya langsung per potong (misal coklat meses 5gr/pcs) → tidak dibagi, karena memang segitu pemakaiannya
-   
-   HPP per pcs = (total biaya bahan "per batch" ÷ hasil jadi) + total biaya bahan "per pcs"
-3. **Racik → Produk Jual**: hubungkan resep ke produk yang dijual, atur harga jual & stok awal.
-4. **Kasir**: tap produk untuk transaksi, sistem otomatis mengurangi stok dan mencatat HPP + profit.
-5. **Laporan**: pantau omzet, HPP, profit, margin, dan produk terlaris per periode.
-6. **Profil**: backup data berkala (unduh JSON), aktifkan mode gelap jika perlu.
+## Alur pakai — 3 Tahap
+
+**1. Racik → Bahan Baku**
+Input semua bahan (adonan, topping, maupun kemasan) sesuai kemasan asli beli:
+- Nama, kategori (Bahan Adonan / Topping / Kemasan)
+- Ukuran kemasan (angka + satuan: Gram/Kg/Mililiter/Liter/Pcs) — otomatis dikonversi ke gram/ml/pcs
+- Harga beli per kemasan itu → harga per satuan otomatis muncul
+
+**2. Racik → Master Resep**
+Susun resep dasar dari Bahan Adonan:
+- Pilih bahan + jumlah pemakaian (misal Terigu 1000gr, Minyak 200ml, Telur 2pcs, Susu 60gr)
+- Isi **Total berat adonan jadi** (gram) — ini hasil timbangan asli setelah adonan matang, bukan hasil jumlah otomatis, karena ada penyusutan saat diolah
+- HPP per gram otomatis muncul = Total biaya bahan ÷ Total berat
+
+**3. Racik → Varian Menu**
+Turunkan varian rasa dari Master Resep:
+- Pilih Master Resep + berat adonan dipakai per pcs (gram)
+- Tambah topping/kemasan (boleh lebih dari satu, misal Meses + Keju)
+- HPP Final otomatis = biaya adonan + topping. Isi harga jual → margin langsung kelihatan
+- Stok menempel di sini (bukan di resep)
+
+**4. Kasir**
+Tinggal tap Varian Menu yang sudah jadi. Stok otomatis berkurang tiap transaksi.
+
+**5. Laporan**
+Omzet, HPP, profit, margin per periode + varian terlaris.
+
+## Kalau harga bahan berubah
+HPP di Master Resep dan Varian Menu itu **snapshot** (dibekukan saat disimpan) — tidak otomatis berubah kalau kamu update harga bahan. Kalau ada perubahan harga:
+- Baris resep/varian yang terdampak akan ada tanda **⚠ harga bahan berubah**
+- Tekan tombol **"↻ Hitung ulang"** di form Master Resep atau Varian Menu untuk update HPP pakai harga terbaru
+- Transaksi kasir yang sudah lewat tidak berubah HPP-nya (laporan laba historis tetap akurat)
 
 ## Catatan
-- Gratis di Cloudflare free tier (Workers + D1 free tier cukup untuk skala UMKM).
-- 1 akun = 1 usaha. Kalau mau multi-cabang/multi-usaha, tiap usaha daftar akun terpisah.
-- Password di-hash (PBKDF2), sesi pakai token JWT — tidak ada data sensitif tersimpan polos.
+- Gratis di Cloudflare free tier
+- 1 akun = 1 usaha
+- Password di-hash (PBKDF2), sesi pakai token JWT
