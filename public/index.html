@@ -13,104 +13,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#F3EFE6;
-    --paper-2:#EAE3D4;
-    --ink:#26211B;
-    --ink-soft:#5B5348;
-    --line:#D9D0BC;
-    --teal:#2C5F5A;
-    --teal-dark:#1E4744;
-    --teal-tint:#DCE7E4;
-    --mustard:#C08A28;
-    --mustard-tint:#F3E6C9;
-    --brick:#A63D40;
-    --brick-tint:#F3DCDC;
-    --card:#FBF9F3;
-    --shadow: 0 1px 0 rgba(38,33,27,.06);
-    --radius: 14px;
-    --radius-sm: 9px;
-    --safe-b: env(safe-area-inset-bottom, 0px);
-    --safe-t: env(safe-area-inset-top, 0px);
+    --paper:#F3EFE6; --paper-2:#EAE3D4; --ink:#26211B; --ink-soft:#5B5348; --line:#D9D0BC;
+    --teal:#2C5F5A; --teal-dark:#1E4744; --teal-tint:#DCE7E4;
+    --mustard:#C08A28; --mustard-tint:#F3E6C9; --brick:#A63D40; --brick-tint:#F3DCDC;
+    --card:#FBF9F3; --shadow: 0 1px 0 rgba(38,33,27,.06); --radius: 14px; --radius-sm: 9px;
+    --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
   }
   [data-theme="gelap"]{
-    --paper:#1B1815;
-    --paper-2:#221E19;
-    --ink:#EFE9DE;
-    --ink-soft:#B4AA9A;
-    --line:#3A342B;
-    --teal:#4F8983;
-    --teal-dark:#3C6E69;
-    --teal-tint:#22302E;
-    --mustard:#D9A44A;
-    --mustard-tint:#332A17;
-    --brick:#C15A5D;
-    --brick-tint:#332020;
-    --card:#221E19;
-    --shadow: 0 1px 0 rgba(0,0,0,.3);
+    --paper:#1B1815; --paper-2:#221E19; --ink:#EFE9DE; --ink-soft:#B4AA9A; --line:#3A342B;
+    --teal:#4F8983; --teal-dark:#3C6E69; --teal-tint:#22302E;
+    --mustard:#D9A44A; --mustard-tint:#332A17; --brick:#C15A5D; --brick-tint:#332020;
+    --card:#221E19; --shadow: 0 1px 0 rgba(0,0,0,.3);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{height:100%;}
-  body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif; font-size:15px; line-height:1.45;
-    overscroll-behavior-y:none;
-  }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:15px; line-height:1.45; overscroll-behavior-y:none; }
   h1,h2,h3,.serif{ font-family:'Zilla Slab', serif; letter-spacing:.1px; }
   .mono{ font-family:'IBM Plex Mono', monospace; }
-  button, input, select{ font-family:inherit; font-size:inherit; color:inherit; }
+  button, input, select, textarea{ font-family:inherit; font-size:inherit; color:inherit; }
   button{ cursor:pointer; }
   a{ color:inherit; }
-
   #app{ max-width:480px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; position:relative; }
 
-  /* ---------- Top bar ---------- */
-  .topbar{
-    position:sticky; top:0; z-index:20;
-    background:var(--paper); padding:calc(14px + var(--safe-t)) 18px 12px;
-    display:flex; align-items:center; justify-content:space-between;
-    border-bottom:1px solid var(--line);
-  }
+  .topbar{ position:sticky; top:0; z-index:20; background:var(--paper); padding:calc(14px + var(--safe-t)) 18px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
   .topbar h1{ margin:0; font-size:20px; font-weight:700; }
   .topbar .sub{ color:var(--ink-soft); font-size:12.5px; margin-top:2px; }
-  .icon-btn{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
-    background:var(--card); display:flex; align-items:center; justify-content:center;
-  }
+  .icon-btn{ width:38px; height:38px; border-radius:50%; border:1px solid var(--line); background:var(--card); display:flex; align-items:center; justify-content:center; }
 
   main{ flex:1; padding:16px 16px calc(96px + var(--safe-b)); }
 
-  /* ---------- Cards ---------- */
-  .card{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-    padding:16px; box-shadow:var(--shadow);
-  }
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); }
   .card + .card{ margin-top:12px; }
-  .section-title{
-    display:flex; align-items:baseline; justify-content:space-between;
-    margin:22px 0 10px;
-  }
+  .section-title{ display:flex; align-items:baseline; justify-content:space-between; margin:22px 0 10px; }
   .section-title h2{ font-size:16.5px; margin:0; }
   .section-title .hint{ font-size:12.5px; color:var(--ink-soft); }
 
   .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
 
-  .stat{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm);
-    padding:12px 12px;
-  }
-  .stat .label{ font-size:11.5px; color:var(--ink-soft); text-transform:none; }
+  .stat{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius-sm); padding:12px 12px; }
+  .stat .label{ font-size:11.5px; color:var(--ink-soft); }
   .stat .value{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:17px; margin-top:4px; }
   .stat.profit .value{ color:var(--teal-dark); }
   .stat.warn .value{ color:var(--brick); }
   [data-theme="gelap"] .stat.profit .value{ color:var(--teal); }
 
-  /* ---------- Buttons ---------- */
-  .btn{
-    display:inline-flex; align-items:center; justify-content:center; gap:6px;
-    border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--card);
-    padding:11px 16px; font-weight:600; font-size:14.5px; width:100%;
-  }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--card); padding:11px 16px; font-weight:600; font-size:14.5px; width:100%; }
   .btn-primary{ background:var(--teal); color:#fff; border-color:var(--teal); }
   .btn-primary:active{ background:var(--teal-dark); }
   .btn-ghost{ background:transparent; }
@@ -120,134 +68,72 @@
   .btn-row{ display:flex; gap:10px; margin-top:14px; }
   .btn-row .btn{ flex:1; }
 
-  /* ---------- Forms ---------- */
   label{ display:block; font-size:12.5px; color:var(--ink-soft); margin:12px 0 5px; }
   label:first-child{ margin-top:0; }
-  input, select, textarea{
-    width:100%; padding:11px 12px; border-radius:var(--radius-sm);
-    border:1px solid var(--line); background:var(--paper); color:var(--ink);
-  }
+  input, select, textarea{ width:100%; padding:11px 12px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--paper); color:var(--ink); }
   textarea{ resize:vertical; min-height:60px; }
   input:focus, select:focus, textarea:focus{ outline:2px solid var(--teal); outline-offset:1px; }
 
-  /* ---------- Auth screen ---------- */
-  #tela-auth{
-    flex:1; display:flex; flex-direction:column; justify-content:center; padding:28px 26px;
-  }
+  #tela-auth{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:28px 26px; }
   .auth-mark{ font-family:'Zilla Slab',serif; font-weight:700; font-size:30px; margin:0 0 2px; }
   .auth-tag{ color:var(--ink-soft); font-size:13.5px; margin-bottom:26px; }
   .auth-toggle{ display:flex; gap:18px; margin-bottom:18px; border-bottom:1px solid var(--line); }
-  .auth-toggle button{
-    background:none; border:none; padding:8px 0; font-weight:600; color:var(--ink-soft);
-    border-bottom:2px solid transparent; margin-bottom:-1px;
-  }
+  .auth-toggle button{ background:none; border:none; padding:8px 0; font-weight:600; color:var(--ink-soft); border-bottom:2px solid transparent; margin-bottom:-1px; }
   .auth-toggle button.aktif{ color:var(--ink); border-color:var(--teal); }
   .form-err{ color:var(--brick); font-size:13px; margin-top:10px; min-height:16px; }
 
-  /* ---------- Bottom nav ---------- */
-  nav.tabs{
-    position:fixed; left:0; right:0; bottom:0; z-index:30;
-    max-width:480px; margin:0 auto;
-    background:var(--card); border-top:1px solid var(--line);
-    display:flex; padding:6px 4px calc(6px + var(--safe-b));
-  }
-  nav.tabs button{
-    flex:1; background:none; border:none; display:flex; flex-direction:column;
-    align-items:center; gap:3px; padding:6px 2px; color:var(--ink-soft); font-size:10.5px; font-weight:600;
-    border-radius:10px;
-  }
+  nav.tabs{ position:fixed; left:0; right:0; bottom:0; z-index:30; max-width:480px; margin:0 auto; background:var(--card); border-top:1px solid var(--line); display:flex; padding:6px 4px calc(6px + var(--safe-b)); }
+  nav.tabs button{ flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; color:var(--ink-soft); font-size:10.5px; font-weight:600; border-radius:10px; }
   nav.tabs button svg{ width:21px; height:21px; }
   nav.tabs button.aktif{ color:var(--teal); }
-  [data-theme="gelap"] nav.tabs button.aktif{ color:var(--teal); }
 
-  /* ---------- Kasir keypad ---------- */
   .produk-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .produk-tile{
-    text-align:left; border:1px solid var(--line); background:var(--card); border-radius:var(--radius-sm);
-    padding:12px; position:relative; overflow:hidden;
-  }
+  .produk-tile{ text-align:left; border:1px solid var(--line); background:var(--card); border-radius:var(--radius-sm); padding:12px; position:relative; overflow:hidden; }
   .produk-tile:active{ background:var(--teal-tint); }
   .produk-tile .nama{ font-weight:600; font-size:14px; display:block; margin-bottom:6px; }
   .produk-tile .harga{ font-family:'IBM Plex Mono',monospace; color:var(--teal-dark); font-weight:600; font-size:14px; }
   [data-theme="gelap"] .produk-tile .harga{ color:var(--teal); }
   .produk-tile .stok{ position:absolute; top:10px; right:10px; font-size:10.5px; color:var(--ink-soft); }
   .produk-tile.habis{ opacity:.4; }
-  .produk-tile .badge-stok-rendah{
-    position:absolute; top:0; left:0; width:5px; height:100%; background:var(--brick);
-  }
+  .produk-tile .badge-stok-rendah{ position:absolute; top:0; left:0; width:5px; height:100%; background:var(--brick); }
 
-  .keranjang-bar{
-    position:fixed; left:0; right:0; bottom:calc(64px + var(--safe-b)); z-index:25;
-    max-width:480px; margin:0 auto; padding:0 16px;
-  }
-  .keranjang-bar .isi{
-    background:var(--ink); color:var(--paper); border-radius:var(--radius); padding:13px 16px;
-    display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 18px rgba(0,0,0,.18);
-  }
+  .keranjang-bar{ position:fixed; left:0; right:0; bottom:calc(64px + var(--safe-b)); z-index:25; max-width:480px; margin:0 auto; padding:0 16px; }
+  .keranjang-bar .isi{ background:var(--ink); color:var(--paper); border-radius:var(--radius); padding:13px 16px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 6px 18px rgba(0,0,0,.18); }
   [data-theme="gelap"] .keranjang-bar .isi{ background:var(--teal); }
   .keranjang-bar .kiri{ font-size:13.5px; }
   .keranjang-bar .kiri b{ font-family:'IBM Plex Mono',monospace; display:block; font-size:16px; }
   .keranjang-bar button{ background:var(--mustard); color:#221A0A; border:none; border-radius:9px; padding:9px 16px; font-weight:700; }
 
-  /* ---------- Sheet (modal bawah) ---------- */
-  .overlay{
-    position:fixed; inset:0; background:rgba(20,17,13,.45); z-index:40;
-    display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity .18s;
-  }
+  .overlay{ position:fixed; inset:0; background:rgba(20,17,13,.45); z-index:40; display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity .18s; }
   .overlay.terbuka{ opacity:1; pointer-events:auto; }
-  .sheet{
-    background:var(--paper); width:100%; max-width:480px; margin:0 auto; border-radius:18px 18px 0 0;
-    padding:18px 18px calc(22px + var(--safe-b)); max-height:88vh; overflow-y:auto;
-    transform:translateY(16px); transition:transform .18s;
-  }
+  .sheet{ background:var(--paper); width:100%; max-width:480px; margin:0 auto; border-radius:18px 18px 0 0; padding:18px 18px calc(22px + var(--safe-b)); max-height:88vh; overflow-y:auto; transform:translateY(16px); transition:transform .18s; }
   .overlay.terbuka .sheet{ transform:translateY(0); }
   .sheet-handle{ width:38px; height:4px; background:var(--line); border-radius:3px; margin:0 auto 14px; }
   .sheet-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   .sheet-head h3{ margin:0; font-size:17px; }
 
-  /* ---------- Lists ---------- */
-  .list-row{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:12px 0; border-bottom:1px solid var(--line);
-  }
+  .list-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
   .list-row:last-child{ border-bottom:none; }
   .list-row .info b{ display:block; font-size:14.5px; }
   .list-row .info span{ font-size:12.5px; color:var(--ink-soft); }
   .list-row .kanan{ text-align:right; font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:600; white-space:nowrap; }
-  .chip{
-    display:inline-block; font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:999px;
-    background:var(--teal-tint); color:var(--teal-dark);
-  }
+  .chip{ display:inline-block; font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--teal-tint); color:var(--teal-dark); }
   [data-theme="gelap"] .chip{ color:var(--teal); }
   .chip.mustard{ background:var(--mustard-tint); color:var(--mustard); }
   .chip.brick{ background:var(--brick-tint); color:var(--brick); }
 
   .subtabs{ display:flex; gap:6px; margin-bottom:14px; background:var(--paper-2); padding:4px; border-radius:11px; }
-  .subtabs button{
-    flex:1; background:none; border:none; padding:8px 4px; border-radius:8px; font-weight:600; font-size:12.8px; color:var(--ink-soft);
-  }
+  .subtabs button{ flex:1; background:none; border:none; padding:8px 4px; border-radius:8px; font-weight:600; font-size:12.8px; color:var(--ink-soft); }
   .subtabs button.aktif{ background:var(--card); color:var(--ink); box-shadow:var(--shadow); }
-
-  .fab{
-    position:fixed; right:calc(16px + (100vw - 480px) / 2); bottom:calc(76px + var(--safe-b));
-    z-index:22; width:52px; height:52px; border-radius:50%; background:var(--teal); color:#fff;
-    border:none; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(44,95,90,.4);
-  }
-  @media (max-width:480px){ .fab{ right:16px; } }
 
   .empty{ text-align:center; padding:40px 12px; color:var(--ink-soft); }
   .empty svg{ width:40px; height:40px; margin-bottom:10px; opacity:.5; }
 
-  .toast{
-    position:fixed; left:50%; bottom:calc(100px + var(--safe-b)); transform:translateX(-50%);
-    background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:999px; font-size:13.5px;
-    z-index:60; opacity:0; pointer-events:none; transition:opacity .2s, bottom .2s;
-  }
+  .toast{ position:fixed; left:50%; bottom:calc(100px + var(--safe-b)); transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:10px 18px; border-radius:999px; font-size:13.5px; z-index:60; opacity:0; pointer-events:none; transition:opacity .2s, bottom .2s; }
   .toast.tampil{ opacity:1; bottom:calc(110px + var(--safe-b)); }
 
   .bahan-row{ display:flex; gap:6px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
   .bahan-row select:first-child{ flex:2 1 100%; } .bahan-row input{ flex:1; min-width:0; }
-  .bahan-row select:not(:first-child){ flex:1; min-width:0; }
   .bahan-row button{ background:none; border:none; color:var(--brick); width:26px; flex:0 0 auto; }
 
   .switch-row{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); }
@@ -258,6 +144,10 @@
   .switch input:checked + .track{ background:var(--teal); }
   .switch input:checked + .track:before{ transform:translateX(18px); }
 
+  .rincian-hpp{ margin-top:10px; }
+  .rincian-hpp .baris{ display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:var(--ink-soft); }
+  .rincian-hpp .baris.total{ border-top:1px solid var(--line); margin-top:4px; padding-top:8px; font-weight:700; color:var(--ink); font-size:14.5px; }
+
   .loading-screen{ flex:1; display:flex; align-items:center; justify-content:center; color:var(--ink-soft); }
   .hidden{ display:none !important; }
 </style>
@@ -265,16 +155,13 @@
 <body>
 <div id="app">
 
-  <!-- ===== AUTH ===== -->
   <div id="tela-auth" class="hidden">
     <div class="auth-mark">Kasir HPP</div>
-    <div class="auth-tag">Racik resep, hitung HPP otomatis, catat tiap penjualan.</div>
-
+    <div class="auth-tag">Bahan Baku → Master Resep → Varian Menu → Kasir.</div>
     <div class="auth-toggle">
       <button id="tab-login" class="aktif" onclick="setModeAuth('login')">Masuk</button>
       <button id="tab-daftar" onclick="setModeAuth('daftar')">Daftar Usaha Baru</button>
     </div>
-
     <form id="form-auth" onsubmit="return submitAuth(event)">
       <div id="field-nama-usaha" class="hidden">
         <label>Nama usaha</label>
@@ -285,19 +172,13 @@
       <label>Password</label>
       <input type="password" id="in-password" required minlength="6" placeholder="Minimal 6 karakter">
       <div class="form-err" id="auth-err"></div>
-      <div class="btn-row">
-        <button type="submit" class="btn btn-primary" id="btn-auth-submit">Masuk</button>
-      </div>
+      <div class="btn-row"><button type="submit" class="btn btn-primary" id="btn-auth-submit">Masuk</button></div>
     </form>
   </div>
 
-  <!-- ===== APP SHELL ===== -->
   <div id="tela-app" class="hidden">
     <div class="topbar">
-      <div>
-        <h1 id="judul-halaman">Beranda</h1>
-        <div class="sub" id="subjudul-halaman">—</div>
-      </div>
+      <div><h1 id="judul-halaman">Beranda</h1><div class="sub" id="subjudul-halaman">—</div></div>
       <button class="icon-btn" onclick="pindahTab('profil')" aria-label="Profil">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="19" height="19"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/></svg>
       </button>
@@ -314,24 +195,19 @@
 
     <nav class="tabs">
       <button data-tab="beranda" onclick="pindahTab('beranda')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>
-        Beranda
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>Beranda
       </button>
       <button data-tab="kasir" onclick="pindahTab('kasir')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="16" height="12" rx="1.5"/><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/></svg>
-        Kasir
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="7" width="16" height="12" rx="1.5"/><path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7"/></svg>Kasir
       </button>
       <button data-tab="racik" onclick="pindahTab('racik')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3v6L5 19a1.5 1.5 0 0 0 1.4 2h11.2A1.5 1.5 0 0 0 19 19l-4-10V3"/><path d="M9 3h6"/></svg>
-        Racik
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3v6L5 19a1.5 1.5 0 0 0 1.4 2h11.2A1.5 1.5 0 0 0 19 19l-4-10V3"/><path d="M9 3h6"/></svg>Racik
       </button>
       <button data-tab="laporan" onclick="pindahTab('laporan')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V9M12 19V5M19 19v-6"/></svg>
-        Laporan
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19V9M12 19V5M19 19v-6"/></svg>Laporan
       </button>
       <button data-tab="profil" onclick="pindahTab('profil')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/></svg>
-        Profil
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.4-3.6 4.4-5.5 7.5-5.5s6.1 1.9 7.5 5.5"/></svg>Profil
       </button>
     </nav>
   </div>
@@ -345,7 +221,7 @@
 
 <script>
 /* ====================================================================
-   Kasir HPP — logika frontend (vanilla JS, satu file)
+   Kasir HPP v2 — Bahan Baku -> Master Resep -> Varian Menu -> Kasir
    ==================================================================== */
 const API = '/api';
 let TOKEN = localStorage.getItem('kh_token') || null;
@@ -356,8 +232,8 @@ document.documentElement.setAttribute('data-theme', TEMA);
 let STATE = {
   tab: 'beranda',
   subtabRacik: 'bahan',
-  bahan: [], resep: [], produk: [], dashboard: null, laporan: null,
-  keranjang: {}, // produk_id -> qty
+  bahan: [], resep: [], varian: [], dashboard: null, laporan: null,
+  keranjang: {}, // varian_id -> qty
   periodeLaporan: 7,
 };
 
@@ -370,21 +246,11 @@ async function api(path, opts = {}) {
   if (!res.ok) throw new Error(data.error || 'Terjadi kesalahan');
   return data;
 }
-
-function rupiah(n) {
-  n = Math.round(Number(n) || 0);
-  return 'Rp ' + n.toLocaleString('id-ID');
-}
-function tanggalPendek(iso) {
-  const d = new Date(iso.replace(' ', 'T') + 'Z');
-  return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
+function rupiah(n) { n = Math.round(Number(n) || 0); return 'Rp ' + n.toLocaleString('id-ID'); }
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('tampil');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('tampil'), 2200);
+  t.textContent = msg; t.classList.add('tampil');
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('tampil'), 2200);
 }
 
 // ---------- AUTH ----------
@@ -408,12 +274,9 @@ async function submitAuth(e) {
     if (mode === 'daftar') payload.nama_usaha = document.getElementById('in-nama-usaha').value.trim() || 'Usaha Saya';
     const data = await api('/auth/' + (mode === 'daftar' ? 'register' : 'login'), { method: 'POST', body: JSON.stringify(payload) });
     TOKEN = data.token; USER = data.user;
-    localStorage.setItem('kh_token', TOKEN);
-    localStorage.setItem('kh_user', JSON.stringify(USER));
+    localStorage.setItem('kh_token', TOKEN); localStorage.setItem('kh_user', JSON.stringify(USER));
     await masukKeApp();
-  } catch (err) {
-    errEl.textContent = err.message;
-  }
+  } catch (err) { errEl.textContent = err.message; }
   return false;
 }
 function keluar() {
@@ -425,8 +288,8 @@ function keluar() {
 
 // ---------- Boot ----------
 async function boot() {
-  if (TOKEN && USER) { await masukKeApp(); }
-  else { document.getElementById('tela-auth').classList.remove('hidden'); }
+  if (TOKEN && USER) await masukKeApp();
+  else document.getElementById('tela-auth').classList.remove('hidden');
 }
 async function masukKeApp() {
   document.getElementById('tela-auth').classList.add('hidden');
@@ -435,15 +298,15 @@ async function masukKeApp() {
   pindahTab('beranda');
 }
 async function muatSemuaData() {
-  const [bahan, resep, produk] = await Promise.all([api('/bahan'), api('/resep'), api('/produk')]);
-  STATE.bahan = bahan; STATE.resep = resep; STATE.produk = produk;
+  const [bahan, resep, varian] = await Promise.all([api('/bahan'), api('/resep'), api('/varian')]);
+  STATE.bahan = bahan; STATE.resep = resep; STATE.varian = varian;
 }
 
 // ---------- Navigasi ----------
 const JUDUL = {
   beranda: ['Beranda', () => USER ? USER.nama_usaha : ''],
-  kasir: ['Kasir', () => 'Ketuk produk untuk tambah ke keranjang'],
-  racik: ['Racik', () => 'Bahan baku, resep, dan produk jual'],
+  kasir: ['Kasir', () => 'Ketuk varian untuk tambah ke keranjang'],
+  racik: ['Racik', () => 'Bahan Baku, Master Resep, Varian Menu'],
   laporan: ['Laporan', () => 'Omzet, HPP, dan profit usahamu'],
   profil: ['Profil', () => USER ? USER.email : ''],
 };
@@ -471,12 +334,9 @@ async function renderBeranda() {
   const konten = document.getElementById('konten');
   let stokHtml = '';
   if (d.stok_rendah.length) {
-    stokHtml = `<div class="section-title"><h2>Perlu restock</h2><span class="hint">${d.stok_rendah.length} produk</span></div>
-    <div class="card">` + d.stok_rendah.map(p => `
-      <div class="list-row">
-        <div class="info"><b>${escapeHtml(p.nama)}</b><span>Sisa stok ${p.stok}</span></div>
-        <span class="chip brick">Stok rendah</span>
-      </div>`).join('') + `</div>`;
+    stokHtml = `<div class="section-title"><h2>Perlu restock</h2><span class="hint">${d.stok_rendah.length} varian</span></div>
+    <div class="card">` + d.stok_rendah.map(v => `
+      <div class="list-row"><div class="info"><b>${escapeHtml(v.nama)}</b><span>Sisa stok ${v.stok}</span></div><span class="chip brick">Stok rendah</span></div>`).join('') + `</div>`;
   }
   konten.innerHTML = `
     <div class="grid-2">
@@ -490,46 +350,45 @@ async function renderBeranda() {
     <div class="card">
       <p style="margin:0 0 12px;color:var(--ink-soft);font-size:13.5px">Buka kasir untuk mencatat transaksi baru.</p>
       <button class="btn btn-primary" onclick="pindahTab('kasir')">Buka Kasir</button>
-    </div>
-  `;
+    </div>`;
 }
 
-// ---------- KASIR ----------
+// ---------- KASIR (pakai Varian Menu) ----------
 async function renderKasir() {
-  STATE.produk = await api('/produk');
+  STATE.varian = await api('/varian');
   const konten = document.getElementById('konten');
-  if (!STATE.produk.length) {
-    konten.innerHTML = emptyState('Belum ada produk', 'Tambahkan produk dulu di tab Racik → Produk.', 'racik');
+  if (!STATE.varian.length) {
+    konten.innerHTML = emptyState('Belum ada varian menu', 'Buat Bahan Baku → Master Resep → Varian Menu dulu di tab Racik.');
     return;
   }
-  konten.innerHTML = `<div class="produk-grid">${STATE.produk.map(kartuProduk).join('')}</div>`;
+  konten.innerHTML = `<div class="produk-grid">${STATE.varian.map(kartuVarian).join('')}</div>`;
   perbaruiBarKeranjang();
 }
-function kartuProduk(p) {
-  const habis = p.stok <= 0;
-  const rendah = p.stok > 0 && p.stok <= p.stok_minimum;
-  const qty = STATE.keranjang[p.id] || 0;
+function kartuVarian(v) {
+  const habis = v.stok <= 0;
+  const rendah = v.stok > 0 && v.stok <= v.stok_minimum;
+  const qty = STATE.keranjang[v.id] || 0;
   return `
-    <button class="produk-tile ${habis ? 'habis' : ''}" ${habis ? 'disabled' : ''} onclick="tambahKeranjang(${p.id})">
+    <button class="produk-tile ${habis ? 'habis' : ''}" ${habis ? 'disabled' : ''} onclick="tambahKeranjang(${v.id})">
       ${rendah ? '<div class="badge-stok-rendah"></div>' : ''}
-      <span class="stok">Stok ${p.stok}</span>
-      <span class="nama">${escapeHtml(p.nama)}</span>
-      <span class="harga">${rupiah(p.harga_jual)}</span>
+      <span class="stok">Stok ${v.stok}</span>
+      <span class="nama">${escapeHtml(v.nama)}</span>
+      <span class="harga">${rupiah(v.harga_jual)}</span>
       ${qty ? `<span class="chip mustard" style="margin-top:8px;display:inline-block">${qty} di keranjang</span>` : ''}
     </button>`;
 }
 function tambahKeranjang(id) {
-  const p = STATE.produk.find(x => x.id === id);
+  const v = STATE.varian.find(x => x.id === id);
   const dipakai = STATE.keranjang[id] || 0;
-  if (dipakai + 1 > p.stok) { toast('Stok tidak cukup'); return; }
+  if (dipakai + 1 > v.stok) { toast('Stok tidak cukup'); return; }
   STATE.keranjang[id] = dipakai + 1;
   renderKasir();
 }
 function jumlahKeranjang() { return Object.values(STATE.keranjang).reduce((a, b) => a + b, 0); }
 function totalKeranjang() {
   return Object.entries(STATE.keranjang).reduce((sum, [id, qty]) => {
-    const p = STATE.produk.find(x => x.id == id);
-    return sum + (p ? p.harga_jual * qty : 0);
+    const v = STATE.varian.find(x => x.id == id);
+    return sum + (v ? v.harga_jual * qty : 0);
   }, 0);
 }
 function perbaruiBarKeranjang() {
@@ -541,9 +400,9 @@ function perbaruiBarKeranjang() {
 function bukaKeranjang() {
   if (jumlahKeranjang() === 0) return;
   const baris = Object.entries(STATE.keranjang).map(([id, qty]) => {
-    const p = STATE.produk.find(x => x.id == id);
+    const v = STATE.varian.find(x => x.id == id);
     return `<div class="list-row">
-      <div class="info"><b>${escapeHtml(p.nama)}</b><span>${rupiah(p.harga_jual)} × ${qty}</span></div>
+      <div class="info"><b>${escapeHtml(v.nama)}</b><span>${rupiah(v.harga_jual)} × ${qty}</span></div>
       <div style="display:flex;align-items:center;gap:10px">
         <button class="btn btn-sm btn-ghost" onclick="ubahQty(${id},-1)">−</button>
         <span class="mono">${qty}</span>
@@ -568,37 +427,37 @@ function bukaKeranjang() {
   `);
 }
 function ubahQty(id, delta) {
-  const p = STATE.produk.find(x => x.id == id);
+  const v = STATE.varian.find(x => x.id == id);
   let q = (STATE.keranjang[id] || 0) + delta;
-  if (q > p.stok) { toast('Stok tidak cukup'); return; }
+  if (q > v.stok) { toast('Stok tidak cukup'); return; }
   if (q <= 0) delete STATE.keranjang[id]; else STATE.keranjang[id] = q;
   if (jumlahKeranjang() === 0) tutupSheet(); else bukaKeranjang();
   renderKasir();
 }
 function kosongkanKeranjang() { STATE.keranjang = {}; tutupSheet(); renderKasir(); }
 async function prosesBayar() {
-  const items = Object.entries(STATE.keranjang).map(([produk_id, qty]) => ({ produk_id: Number(produk_id), qty }));
+  const items = Object.entries(STATE.keranjang).map(([varian_id, qty]) => ({ varian_id: Number(varian_id), qty }));
   const metode_bayar = document.getElementById('in-metode-bayar').value;
   try {
     const hasil = await api('/transaksi', { method: 'POST', body: JSON.stringify({ items, metode_bayar }) });
-    STATE.keranjang = {};
-    tutupSheet();
+    STATE.keranjang = {}; tutupSheet();
     toast('Transaksi tersimpan · Profit ' + rupiah(hasil.total_profit));
     await renderKasir();
   } catch (e) { toast(e.message); }
 }
 
-// ---------- RACIK (Bahan / Resep / Produk) ----------
+// ========================================================
+// RACIK: 3 sub-tab -> Bahan Baku / Master Resep / Varian Menu
+// ========================================================
 async function renderRacik() {
   const konten = document.getElementById('konten');
   konten.innerHTML = `
     <div class="subtabs">
       <button data-sub="bahan" onclick="setSubRacik('bahan')">Bahan Baku</button>
-      <button data-sub="resep" onclick="setSubRacik('resep')">Resep</button>
-      <button data-sub="produk" onclick="setSubRacik('produk')">Produk Jual</button>
+      <button data-sub="resep" onclick="setSubRacik('resep')">Master Resep</button>
+      <button data-sub="varian" onclick="setSubRacik('varian')">Varian Menu</button>
     </div>
-    <div id="racik-konten"></div>
-  `;
+    <div id="racik-konten"></div>`;
   await tampilkanSubRacik();
 }
 function setSubRacik(sub) { STATE.subtabRacik = sub; tampilkanSubRacik(); }
@@ -607,19 +466,27 @@ async function tampilkanSubRacik() {
   const el = document.getElementById('racik-konten');
   if (STATE.subtabRacik === 'bahan') { STATE.bahan = await api('/bahan'); el.innerHTML = daftarBahan(); }
   else if (STATE.subtabRacik === 'resep') { STATE.resep = await api('/resep'); el.innerHTML = daftarResep(); }
-  else { STATE.produk = await api('/produk'); el.innerHTML = daftarProdukKelola(); }
+  else { STATE.resep = await api('/resep'); STATE.varian = await api('/varian'); el.innerHTML = daftarVarian(); }
 }
 
+// ---------------- 1. MASTER BAHAN BAKU ----------------
+const LABEL_KATEGORI = { adonan: 'Bahan Adonan', topping: 'Topping', kemasan: 'Kemasan' };
 function daftarBahan() {
-  if (!STATE.bahan.length) return emptyState('Belum ada bahan baku', 'Tambahkan bahan baku pertama untuk mulai menyusun resep.') + tombolTambah('bahanFormBaru()');
-  return `<div class="card">${STATE.bahan.map(b => `
-    <div class="list-row">
-      <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_beli)} / ${b.isi_kemasan}${escapeHtml(b.satuan)} · ${rupiah(b.harga_per_satuan)}/${escapeHtml(b.satuan)}</span></div>
-      <button class="btn btn-sm btn-ghost" onclick="bahanFormEdit(${b.id})">Ubah</button>
-    </div>`).join('')}</div>${tombolTambah('bahanFormBaru()')}`;
+  if (!STATE.bahan.length) return emptyState('Belum ada bahan baku', 'Tambahkan bahan pertama — bisa bahan adonan, topping, atau kemasan.') + tombolTambah('bahanFormBaru()');
+  const grup = { adonan: [], topping: [], kemasan: [] };
+  STATE.bahan.forEach(b => grup[b.kategori]?.push(b));
+  let html = '';
+  for (const kat of ['adonan', 'topping', 'kemasan']) {
+    if (!grup[kat].length) continue;
+    html += `<div class="section-title"><h2>${LABEL_KATEGORI[kat]}</h2></div><div class="card">` +
+      grup[kat].map(b => `
+        <div class="list-row">
+          <div class="info"><b>${escapeHtml(b.nama)}</b><span>${rupiah(b.harga_beli)} / ${b.isi_kemasan}${escapeHtml(b.satuan)} · ${rupiah(b.harga_per_satuan)}/${escapeHtml(b.satuan)}</span></div>
+          <button class="btn btn-sm btn-ghost" onclick="bahanFormEdit(${b.id})">Ubah</button>
+        </div>`).join('') + `</div>`;
+  }
+  return html + tombolTambah('bahanFormBaru()');
 }
-
-// Satuan kemasan yang bisa dipilih user -> dikonversi ke satuan dasar (gr/ml/pcs) yang dipakai di resep
 const SATUAN_KEMASAN = [
   { label: 'Gram (g)', dasar: 'gr', kali: 1 },
   { label: 'Kilogram (kg)', dasar: 'gr', kali: 1000 },
@@ -628,7 +495,6 @@ const SATUAN_KEMASAN = [
   { label: 'Pcs / Butir', dasar: 'pcs', kali: 1 },
 ];
 function opsiSatuanKemasan(satuanDasarTerpilih) {
-  // saat edit, cocokkan ke opsi dg satuan dasar sama & kali=1 (tampil sesuai satuan dasar tersimpan)
   return SATUAN_KEMASAN.map((s, i) => {
     const cocok = satuanDasarTerpilih ? (s.dasar === satuanDasarTerpilih && s.kali === 1) : (i === 0);
     return `<option value="${i}" ${cocok ? 'selected' : ''}>${s.label}</option>`;
@@ -640,7 +506,13 @@ function bahanForm(b) {
   bukaSheet(`
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>${b ? 'Ubah' : 'Tambah'} Bahan Baku</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
-    <label>Nama bahan</label><input id="bf-nama" value="${b ? escapeAttr(b.nama) : ''}" placeholder="Contoh: Tepung terigu Cakra Kembar">
+    <label>Nama bahan</label><input id="bf-nama" value="${b ? escapeAttr(b.nama) : ''}" placeholder="Contoh: Tepung Terigu Cakra Kembar">
+    <label>Kategori</label>
+    <select id="bf-kategori">
+      <option value="adonan" ${!b || b.kategori === 'adonan' ? 'selected' : ''}>Bahan Adonan</option>
+      <option value="topping" ${b && b.kategori === 'topping' ? 'selected' : ''}>Topping</option>
+      <option value="kemasan" ${b && b.kategori === 'kemasan' ? 'selected' : ''}>Kemasan</option>
+    </select>
     <label>Ukuran kemasan yang dibeli</label>
     <div class="grid-2">
       <input id="bf-jumlah" type="number" value="${b ? b.isi_kemasan : ''}" placeholder="Contoh: 1" oninput="bahanPreview()">
@@ -676,6 +548,7 @@ async function bahanSimpan(id) {
   const { satuanDasar, isiDasar } = bahanKonversiSekarang();
   const payload = {
     nama: document.getElementById('bf-nama').value.trim(),
+    kategori: document.getElementById('bf-kategori').value,
     satuan: satuanDasar,
     harga_beli: Number(document.getElementById('bf-harga-beli').value),
     isi_kemasan: isiDasar || 1,
@@ -693,52 +566,51 @@ async function bahanHapus(id) {
   catch (e) { document.getElementById('bf-err').textContent = e.message; }
 }
 
+// ---------------- 2. MASTER RESEP ----------------
+function bahanAdonanSaja() { return STATE.bahan.filter(b => b.kategori === 'adonan'); }
 function daftarResep() {
-  if (!STATE.resep.length) return emptyState('Belum ada resep', 'Susun resep dari bahan baku untuk menghitung HPP otomatis.') + tombolTambah('resepFormBaru()');
+  if (!STATE.resep.length) return emptyState('Belum ada Master Resep', 'Susun resep dasar dari Bahan Adonan — HPP per gram terhitung otomatis.') + tombolTambah('resepFormBaru()');
   return `<div class="card">${STATE.resep.map(r => `
     <div class="list-row">
-      <div class="info"><b>${escapeHtml(r.nama)}</b><span>${escapeHtml(r.kategori)} · hasil ${r.hasil_pcs} pcs</span></div>
+      <div class="info"><b>${escapeHtml(r.nama)}</b><span>${r.total_berat}gr adonan ${r.harga_berubah ? '· <span style=\"color:var(--brick)\">⚠ harga bahan berubah</span>' : ''}</span></div>
       <div style="text-align:right">
-        <div class="kanan">${rupiah(r.hpp)}<span style="font-weight:400;color:var(--ink-soft);font-size:11px">/pcs</span></div>
+        <div class="kanan">${rupiah(r.hpp_per_gram)}<span style="font-weight:400;color:var(--ink-soft);font-size:11px">/gr</span></div>
         <button class="btn btn-sm btn-ghost" onclick="resepFormEdit(${r.id})">Ubah</button>
       </div>
     </div>`).join('')}</div>${tombolTambah('resepFormBaru()')}`;
 }
 let resepBahanBaris = [];
-let resepHasilPcs = 1;
-function resepFormBaru() { resepBahanBaris = [{ bahan_id: '', qty: '', mode: 'batch' }]; resepHasilPcs = 1; resepForm(null); }
+function resepFormBaru() {
+  if (!bahanAdonanSaja().length) { toast('Tambahkan Bahan Adonan dulu di menu Bahan Baku'); return; }
+  resepBahanBaris = [{ bahan_id: '', qty: '' }];
+  resepForm(null);
+}
 async function resepFormEdit(id) {
   const r = await api('/resep/' + id);
-  resepBahanBaris = r.bahan.map(b => ({ bahan_id: b.bahan_id, qty: b.qty, mode: b.mode || 'batch' }));
-  resepHasilPcs = r.hasil_pcs || 1;
+  resepBahanBaris = r.bahan.map(b => ({ bahan_id: b.bahan_id, qty: b.qty }));
   resepForm(r);
 }
-function opsiBahan(selectedId) {
-  return STATE.bahan.map(b => `<option value="${b.id}" ${b.id == selectedId ? 'selected' : ''}>${escapeHtml(b.nama)} (${escapeHtml(b.satuan)})</option>`).join('');
+function opsiBahanAdonan(selectedId) {
+  return bahanAdonanSaja().map(b => `<option value="${b.id}" ${b.id == selectedId ? 'selected' : ''}>${escapeHtml(b.nama)} (${escapeHtml(b.satuan)})</option>`).join('');
 }
 function resepForm(r) {
-  if (!STATE.bahan.length) { toast('Tambahkan bahan baku dulu sebelum membuat resep'); return; }
   bukaSheet(`
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h3>${r ? 'Ubah' : 'Tambah'} Resep</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
-    <label>Nama resep / produk</label><input id="rf-nama" value="${r ? escapeAttr(r.nama) : ''}" placeholder="Contoh: Roti Coklat Meses">
-    <label>Kategori</label><input id="rf-kategori" value="${r ? escapeAttr(r.kategori) : 'Umum'}">
-    <label>Hasil jadi dari 1 adonan/batch</label>
-    <input id="rf-hasil-pcs" type="number" value="${r ? r.hasil_pcs : 1}" placeholder="Contoh: 33" oninput="resepHasilPcs=Number(this.value)||1; previewHpp()">
-    <div style="font-size:12px;color:var(--ink-soft);margin-top:-8px;margin-bottom:4px">Contoh: 1kg adonan jadi 33 pcs roti → isi 33</div>
-    <label style="margin-top:16px">Komposisi bahan</label>
-    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px">
-      <span class="chip">Per batch</span> = bahan adonan (dibagi rata ke semua pcs) ·
-      <span class="chip mustard">Per pcs</span> = topping/isian (dipakai langsung tiap pcs)
-    </div>
+    <div class="sheet-head"><h3>${r ? 'Ubah' : 'Tambah'} Master Resep</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <label>Nama Master Resep</label><input id="rf-nama" value="${r ? escapeAttr(r.nama) : ''}" placeholder="Contoh: Roti Maryam">
+    <label style="margin-top:16px">Bahan adonan</label>
     <div id="rf-bahan-list"></div>
     <button class="btn btn-sm btn-ghost" style="margin-top:4px" onclick="resepTambahBaris()">+ Tambah bahan</button>
-    <div class="stat" style="margin-top:14px"><div class="label">Perkiraan HPP per pcs</div><div class="value" id="rf-hpp-preview">Rp 0</div></div>
+    <label style="margin-top:16px">Total berat adonan jadi (gram) — hasil timbangan asli</label>
+    <input id="rf-total-berat" type="number" value="${r ? r.total_berat : ''}" placeholder="Contoh: 1500" oninput="previewHpp()">
+    <div class="stat" style="margin-top:14px"><div class="label">Total biaya bahan</div><div class="value" id="rf-total-biaya">Rp 0</div></div>
+    <div class="stat" style="margin-top:10px"><div class="label">HPP per gram adonan</div><div class="value" id="rf-hpp-preview">Rp 0</div></div>
     <div class="form-err" id="rf-err"></div>
     <div class="btn-row">
       ${r ? `<button class="btn btn-danger" onclick="resepHapus(${r.id})">Hapus</button>` : ''}
       <button class="btn btn-primary" onclick="resepSimpan(${r ? r.id : 'null'})">Simpan</button>
     </div>
+    ${r ? `<div class="btn-row"><button class="btn btn-ghost" onclick="resepHitungUlang(${r.id})">↻ Hitung ulang pakai harga terbaru</button></div>` : ''}
   `);
   renderBarisResep();
 }
@@ -746,127 +618,193 @@ function renderBarisResep() {
   const el = document.getElementById('rf-bahan-list');
   el.innerHTML = resepBahanBaris.map((row, i) => `
     <div class="bahan-row">
-      <select onchange="resepBahanBaris[${i}].bahan_id=this.value; previewHpp()">${'<option value="">Pilih bahan</option>' + opsiBahan(row.bahan_id)}</select>
-      <input type="number" placeholder="Qty" value="${row.qty}" oninput="resepBahanBaris[${i}].qty=this.value; previewHpp()">
-      <select style="flex:1" onchange="resepBahanBaris[${i}].mode=this.value; previewHpp()">
-        <option value="batch" ${row.mode !== 'pcs' ? 'selected' : ''}>Per batch</option>
-        <option value="pcs" ${row.mode === 'pcs' ? 'selected' : ''}>Per pcs</option>
-      </select>
+      <select onchange="resepBahanBaris[${i}].bahan_id=this.value; previewHpp()">${'<option value="">Pilih bahan</option>' + opsiBahanAdonan(row.bahan_id)}</select>
+      <input type="number" placeholder="Jumlah pakai" value="${row.qty}" oninput="resepBahanBaris[${i}].qty=this.value; previewHpp()">
       <button onclick="resepHapusBaris(${i})">✕</button>
     </div>`).join('');
   previewHpp();
 }
-function resepTambahBaris() { resepBahanBaris.push({ bahan_id: '', qty: '', mode: 'batch' }); renderBarisResep(); }
+function resepTambahBaris() { resepBahanBaris.push({ bahan_id: '', qty: '' }); renderBarisResep(); }
 function resepHapusBaris(i) { resepBahanBaris.splice(i, 1); renderBarisResep(); }
 function previewHpp() {
-  let biayaBatch = 0, biayaPcs = 0;
+  let total = 0;
   for (const row of resepBahanBaris) {
     const b = STATE.bahan.find(x => x.id == row.bahan_id);
-    if (b && row.qty) {
-      const biaya = Number(row.qty) * b.harga_per_satuan;
-      if (row.mode === 'pcs') biayaPcs += biaya; else biayaBatch += biaya;
-    }
+    if (b && row.qty) total += Number(row.qty) * b.harga_per_satuan;
   }
-  const hasil = resepHasilPcs || 1;
-  const hppPerPcs = biayaBatch / hasil + biayaPcs;
-  const el = document.getElementById('rf-hpp-preview');
-  if (el) el.textContent = rupiah(hppPerPcs);
+  const totalBerat = Number(document.getElementById('rf-total-berat')?.value) || 0;
+  document.getElementById('rf-total-biaya').textContent = rupiah(total);
+  const hppGram = totalBerat > 0 ? total / totalBerat : 0;
+  document.getElementById('rf-hpp-preview').textContent = rupiah(hppGram) + '/gr';
 }
 async function resepSimpan(id) {
   const bahanValid = resepBahanBaris.filter(r => r.bahan_id && r.qty);
+  if (!bahanValid.length) { document.getElementById('rf-err').textContent = 'Isi minimal 1 bahan'; return; }
   const payload = {
     nama: document.getElementById('rf-nama').value.trim(),
-    kategori: document.getElementById('rf-kategori').value.trim() || 'Umum',
-    hasil_pcs: Number(document.getElementById('rf-hasil-pcs').value) || 1,
-    bahan: bahanValid.map(r => ({ bahan_id: Number(r.bahan_id), qty: Number(r.qty), mode: r.mode === 'pcs' ? 'pcs' : 'batch' })),
+    total_berat: Number(document.getElementById('rf-total-berat').value),
+    bahan: bahanValid.map(r => ({ bahan_id: Number(r.bahan_id), qty: Number(r.qty) })),
   };
   try {
     if (id) await api('/resep/' + id, { method: 'PUT', body: JSON.stringify(payload) });
     else await api('/resep', { method: 'POST', body: JSON.stringify(payload) });
-    tutupSheet(); toast('Resep tersimpan'); await tampilkanSubRacik();
+    tutupSheet(); toast('Master Resep tersimpan'); await tampilkanSubRacik();
   } catch (e) { document.getElementById('rf-err').textContent = e.message; }
 }
 async function resepHapus(id) {
   try { await api('/resep/' + id, { method: 'DELETE' }); tutupSheet(); toast('Resep dihapus'); await tampilkanSubRacik(); }
   catch (e) { document.getElementById('rf-err').textContent = e.message; }
 }
+async function resepHitungUlang(id) {
+  try {
+    const hasil = await api('/resep/' + id + '/hitung-ulang', { method: 'POST' });
+    toast('HPP resep diperbarui: ' + rupiah(hasil.hpp_per_gram) + '/gr');
+    tutupSheet(); await tampilkanSubRacik();
+  } catch (e) { toast(e.message); }
+}
 
-function daftarProdukKelola() {
-  if (!STATE.produk.length) return emptyState('Belum ada produk jual', 'Hubungkan resep ke produk supaya bisa dijual di kasir.') + tombolTambah('produkFormBaru()');
-  return `<div class="card">${STATE.produk.map(p => `
+// ---------------- 3. VARIAN MENU ----------------
+function bahanToppingKemasan() { return STATE.bahan.filter(b => b.kategori === 'topping' || b.kategori === 'kemasan'); }
+function daftarVarian() {
+  if (!STATE.resep.length) return emptyState('Buat Master Resep dulu', 'Varian Menu diturunkan dari Master Resep yang sudah dibuat.');
+  if (!STATE.varian.length) return emptyState('Belum ada Varian Menu', 'Pilih Master Resep, tentukan berat & topping — HPP final terhitung otomatis.') + tombolTambah('varianFormBaru()');
+  return `<div class="card">${STATE.varian.map(v => `
     <div class="list-row">
-      <div class="info"><b>${escapeHtml(p.nama)}</b><span>HPP ${rupiah(p.hpp)} · Margin ${p.margin}%</span></div>
+      <div class="info"><b>${escapeHtml(v.nama)}</b><span>${escapeHtml(v.nama_resep)} · ${v.berat_gram}gr ${v.harga_berubah ? '· <span style=\"color:var(--brick)\">⚠ HPP berubah</span>' : ''}</span></div>
       <div style="text-align:right">
-        <div class="kanan">${rupiah(p.harga_jual)}</div>
-        <button class="btn btn-sm btn-ghost" onclick="produkFormEdit(${p.id})">Ubah</button>
+        <div class="kanan">${rupiah(v.harga_jual)}</div>
+        <button class="btn btn-sm btn-ghost" onclick="varianFormEdit(${v.id})">Ubah</button>
       </div>
-    </div>`).join('')}</div>${tombolTambah('produkFormBaru()')}`;
+    </div>`).join('')}</div>${tombolTambah('varianFormBaru()')}`;
 }
-function produkFormBaru() { produkForm(null); }
-function produkFormEdit(id) { produkForm(STATE.produk.find(p => p.id === id)); }
-function opsiResep(selectedId) {
-  return `<option value="">— HPP manual —</option>` + STATE.resep.map(r => `<option value="${r.id}" ${r.id == selectedId ? 'selected' : ''}>${escapeHtml(r.nama)} (HPP ${rupiah(r.hpp)})</option>`).join('');
+let varianToppingBaris = [];
+function varianFormBaru() { varianToppingBaris = []; varianForm(null); }
+async function varianFormEdit(id) {
+  const v = await api('/varian/' + id);
+  varianToppingBaris = v.topping.map(t => ({ bahan_id: t.bahan_id, qty: t.qty }));
+  varianForm(v);
 }
-function produkForm(p) {
+function opsiResepDropdown(selectedId) {
+  return STATE.resep.map(r => `<option value="${r.id}" ${r.id == selectedId ? 'selected' : ''}>${escapeHtml(r.nama)} (${rupiah(r.hpp_per_gram)}/gr)</option>`).join('');
+}
+function opsiBahanTopping(selectedId) {
+  return bahanToppingKemasan().map(b => `<option value="${b.id}" ${b.id == selectedId ? 'selected' : ''}>${escapeHtml(b.nama)} — ${LABEL_KATEGORI[b.kategori]} (${escapeHtml(b.satuan)})</option>`).join('');
+}
+function varianForm(v) {
   bukaSheet(`
     <div class="sheet-handle"></div>
-    <div class="sheet-head"><h3>${p ? 'Ubah' : 'Tambah'} Produk</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
-    <label>Nama produk</label><input id="pf-nama" value="${p ? escapeAttr(p.nama) : ''}" placeholder="Nama yang tampil di kasir">
-    <label>Sumber HPP</label>
-    <select id="pf-resep" onchange="pfToggleManual()">${opsiResep(p ? p.resep_id : '')}</select>
-    <div id="pf-manual-wrap" class="${p && !p.resep_id ? '' : 'hidden'}">
-      <label>HPP manual</label><input id="pf-hpp-manual" type="number" value="${p && p.hpp_manual ? p.hpp_manual : ''}">
-    </div>
-    <div class="grid-2">
-      <div><label>Harga jual</label><input id="pf-harga" type="number" value="${p ? p.harga_jual : ''}"></div>
-      <div><label>Stok ${p ? '(ubah lewat restock)' : ''}</label><input id="pf-stok" type="number" value="${p ? p.stok : 0}" ${p ? 'disabled' : ''}></div>
-    </div>
-    <label>Stok minimum (peringatan)</label><input id="pf-stok-min" type="number" value="${p ? p.stok_minimum : 0}">
-    <div class="form-err" id="pf-err"></div>
+    <div class="sheet-head"><h3>${v ? 'Ubah' : 'Tambah'} Varian Menu</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
+    <label>Nama varian</label><input id="vf-nama" value="${v ? escapeAttr(v.nama) : ''}" placeholder="Contoh: Roti Maryam Coklat">
+    <label>Master Resep</label>
+    <select id="vf-resep" onchange="previewHppVarian()">${opsiResepDropdown(v ? v.resep_id : '')}</select>
+    <label>Berat adonan dipakai (gram)</label>
+    <input id="vf-berat" type="number" value="${v ? v.berat_gram : ''}" placeholder="Contoh: 75" oninput="previewHppVarian()">
+    <label style="margin-top:16px">Topping / Kemasan tambahan (opsional)</label>
+    <div id="vf-topping-list"></div>
+    <button class="btn btn-sm btn-ghost" style="margin-top:4px" onclick="varianTambahTopping()">+ Tambah topping/kemasan</button>
+    <div class="rincian-hpp card" style="margin-top:14px" id="vf-rincian"></div>
+    <label style="margin-top:16px">Harga jual</label>
+    <input id="vf-harga-jual" type="number" value="${v ? v.harga_jual : ''}" placeholder="0" oninput="previewHppVarian()">
+    <div class="stat" style="margin-top:10px" id="vf-margin-box"><div class="label">Margin</div><div class="value" id="vf-margin">0%</div></div>
+    ${!v ? `<label style="margin-top:12px">Stok awal</label><input id="vf-stok" type="number" value="0">` : ''}
+    <label style="margin-top:12px">Stok minimum (peringatan)</label><input id="vf-stok-min" type="number" value="${v ? v.stok_minimum : 0}">
+    <div class="form-err" id="vf-err"></div>
     <div class="btn-row">
-      ${p ? `<button class="btn btn-danger" onclick="produkHapus(${p.id})">Nonaktifkan</button>` : ''}
-      <button class="btn btn-primary" onclick="produkSimpan(${p ? p.id : 'null'})">Simpan</button>
+      ${v ? `<button class="btn btn-danger" onclick="varianHapus(${v.id})">Nonaktifkan</button>` : ''}
+      <button class="btn btn-primary" onclick="varianSimpan(${v ? v.id : 'null'})">Simpan</button>
     </div>
-    ${p ? `<div class="btn-row"><button class="btn btn-ghost" onclick="produkRestockForm(${p.id})">+ Restock stok</button></div>` : ''}
+    ${v ? `<div class="btn-row"><button class="btn btn-ghost" onclick="varianHitungUlang(${v.id})">↻ Hitung ulang HPP</button></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="varianRestockForm(${v.id})">+ Restock stok</button></div>` : ''}
   `);
+  renderBarisTopping();
 }
-function pfToggleManual() {
-  const v = document.getElementById('pf-resep').value;
-  document.getElementById('pf-manual-wrap').classList.toggle('hidden', !!v);
+function renderBarisTopping() {
+  const el = document.getElementById('vf-topping-list');
+  el.innerHTML = varianToppingBaris.map((row, i) => `
+    <div class="bahan-row">
+      <select onchange="varianToppingBaris[${i}].bahan_id=this.value; previewHppVarian()">${'<option value="">Pilih bahan</option>' + opsiBahanTopping(row.bahan_id)}</select>
+      <input type="number" placeholder="Qty" value="${row.qty}" oninput="varianToppingBaris[${i}].qty=this.value; previewHppVarian()">
+      <button onclick="varianHapusTopping(${i})">✕</button>
+    </div>`).join('');
+  previewHppVarian();
 }
-async function produkSimpan(id) {
-  const resepId = document.getElementById('pf-resep').value;
+function varianTambahTopping() { varianToppingBaris.push({ bahan_id: '', qty: '' }); renderBarisTopping(); }
+function varianHapusTopping(i) { varianToppingBaris.splice(i, 1); renderBarisTopping(); }
+function previewHppVarian() {
+  const resepId = document.getElementById('vf-resep')?.value;
+  const resep = STATE.resep.find(r => r.id == resepId);
+  const berat = Number(document.getElementById('vf-berat')?.value) || 0;
+  const biayaAdonan = resep ? berat * resep.hpp_per_gram : 0;
+
+  let biayaTopping = 0;
+  const rincianTopping = [];
+  for (const row of varianToppingBaris) {
+    const b = STATE.bahan.find(x => x.id == row.bahan_id);
+    if (b && row.qty) {
+      const biaya = Number(row.qty) * b.harga_per_satuan;
+      biayaTopping += biaya;
+      rincianTopping.push({ nama: b.nama, biaya });
+    }
+  }
+  const hppFinal = biayaAdonan + biayaTopping;
+  const hargaJual = Number(document.getElementById('vf-harga-jual')?.value) || 0;
+  const margin = hargaJual > 0 ? ((hargaJual - hppFinal) / hargaJual) * 100 : 0;
+
+  const rincianEl = document.getElementById('vf-rincian');
+  if (rincianEl) {
+    rincianEl.innerHTML = `
+      <div class="baris"><span>Biaya adonan (${berat}gr)</span><span>${rupiah(biayaAdonan)}</span></div>
+      ${rincianTopping.map(t => `<div class="baris"><span>${escapeHtml(t.nama)}</span><span>${rupiah(t.biaya)}</span></div>`).join('')}
+      <div class="baris total"><span>HPP Final</span><span>${rupiah(hppFinal)}</span></div>
+    `;
+  }
+  const marginEl = document.getElementById('vf-margin');
+  if (marginEl) {
+    marginEl.textContent = margin.toFixed(1) + '%';
+    document.getElementById('vf-margin-box').className = 'stat ' + (margin < 0 ? 'warn' : 'profit');
+  }
+}
+async function varianSimpan(id) {
+  const toppingValid = varianToppingBaris.filter(r => r.bahan_id && r.qty);
   const payload = {
-    nama: document.getElementById('pf-nama').value.trim(),
-    resep_id: resepId ? Number(resepId) : null,
-    hpp_manual: resepId ? null : Number(document.getElementById('pf-hpp-manual').value || 0),
-    harga_jual: Number(document.getElementById('pf-harga').value),
-    stok: Number(document.getElementById('pf-stok').value || 0),
-    stok_minimum: Number(document.getElementById('pf-stok-min').value || 0),
+    nama: document.getElementById('vf-nama').value.trim(),
+    resep_id: Number(document.getElementById('vf-resep').value),
+    berat_gram: Number(document.getElementById('vf-berat').value),
+    topping: toppingValid.map(r => ({ bahan_id: Number(r.bahan_id), qty: Number(r.qty) })),
+    harga_jual: Number(document.getElementById('vf-harga-jual').value) || 0,
+    stok_minimum: Number(document.getElementById('vf-stok-min').value) || 0,
   };
+  if (!id) payload.stok = Number(document.getElementById('vf-stok').value) || 0;
   try {
-    if (id) await api('/produk/' + id, { method: 'PUT', body: JSON.stringify(payload) });
-    else await api('/produk', { method: 'POST', body: JSON.stringify(payload) });
-    tutupSheet(); toast('Produk tersimpan'); await tampilkanSubRacik();
-  } catch (e) { document.getElementById('pf-err').textContent = e.message; }
+    if (id) await api('/varian/' + id, { method: 'PUT', body: JSON.stringify(payload) });
+    else await api('/varian', { method: 'POST', body: JSON.stringify(payload) });
+    tutupSheet(); toast('Varian tersimpan'); await tampilkanSubRacik();
+  } catch (e) { document.getElementById('vf-err').textContent = e.message; }
 }
-async function produkHapus(id) {
-  try { await api('/produk/' + id, { method: 'DELETE' }); tutupSheet(); toast('Produk dinonaktifkan'); await tampilkanSubRacik(); }
-  catch (e) { document.getElementById('pf-err').textContent = e.message; }
+async function varianHapus(id) {
+  try { await api('/varian/' + id, { method: 'DELETE' }); tutupSheet(); toast('Varian dinonaktifkan'); await tampilkanSubRacik(); }
+  catch (e) { document.getElementById('vf-err').textContent = e.message; }
 }
-function produkRestockForm(id) {
+async function varianHitungUlang(id) {
+  try {
+    const hasil = await api('/varian/' + id + '/hitung-ulang', { method: 'POST' });
+    toast('HPP varian diperbarui: ' + rupiah(hasil.hpp_final));
+    tutupSheet(); await tampilkanSubRacik();
+  } catch (e) { toast(e.message); }
+}
+function varianRestockForm(id) {
   bukaSheet(`
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>Restock stok</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
     <label>Jumlah masuk</label><input id="rs-qty" type="number" placeholder="0">
-    <label>Catatan (opsional)</label><input id="rs-catatan" placeholder="Contoh: Belanja bahan Senin">
+    <label>Catatan (opsional)</label><input id="rs-catatan" placeholder="Contoh: Produksi pagi ini">
     <div class="form-err" id="rs-err"></div>
-    <div class="btn-row"><button class="btn btn-primary" onclick="produkRestockSimpan(${id})">Simpan</button></div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="varianRestockSimpan(${id})">Simpan</button></div>
   `);
 }
-async function produkRestockSimpan(id) {
+async function varianRestockSimpan(id) {
   try {
-    await api('/produk/' + id + '/restock', { method: 'POST', body: JSON.stringify({ qty: Number(document.getElementById('rs-qty').value), catatan: document.getElementById('rs-catatan').value }) });
+    await api('/varian/' + id + '/restock', { method: 'POST', body: JSON.stringify({ qty: Number(document.getElementById('rs-qty').value), catatan: document.getElementById('rs-catatan').value }) });
     tutupSheet(); toast('Stok diperbarui'); await tampilkanSubRacik();
   } catch (e) { document.getElementById('rs-err').textContent = e.message; }
 }
@@ -880,8 +818,7 @@ async function renderLaporan() {
       <button class="${STATE.periodeLaporan===30?'aktif':''}" onclick="gantiPeriodeLaporan(30)">30 Hari</button>
       <button class="${STATE.periodeLaporan===90?'aktif':''}" onclick="gantiPeriodeLaporan(90)">90 Hari</button>
     </div>
-    <div id="laporan-konten"></div>
-  `;
+    <div id="laporan-konten"></div>`;
   await muatLaporan();
 }
 function gantiPeriodeLaporan(n) { STATE.periodeLaporan = n; renderLaporan(); }
@@ -899,7 +836,6 @@ async function muatLaporan() {
       </div>
       <span style="font-size:9.5px;color:var(--ink-soft)">${t.tanggal.slice(8,10)}/${t.tanggal.slice(5,7)}</span>
     </div>`).join('');
-
   document.getElementById('laporan-konten').innerHTML = `
     <div class="grid-2">
       <div class="stat"><div class="label">Omzet</div><div class="value">${rupiah(L.omzet)}</div></div>
@@ -908,41 +844,29 @@ async function muatLaporan() {
       <div class="stat"><div class="label">Margin</div><div class="value">${L.margin_persen}%</div></div>
     </div>
     <div class="section-title"><h2>Tren omzet</h2><span class="hint">${L.jumlah_transaksi} transaksi</span></div>
-    <div class="card">
-      ${L.tren_harian.length ? `<div style="display:flex;gap:6px;align-items:flex-end">${grafik}</div>` : '<p style="color:var(--ink-soft);margin:0;font-size:13.5px">Belum ada transaksi di periode ini.</p>'}
-    </div>
-    <div class="section-title"><h2>Produk terlaris</h2></div>
+    <div class="card">${L.tren_harian.length ? `<div style="display:flex;gap:6px;align-items:flex-end">${grafik}</div>` : '<p style="color:var(--ink-soft);margin:0;font-size:13.5px">Belum ada transaksi di periode ini.</p>'}</div>
+    <div class="section-title"><h2>Varian terlaris</h2></div>
     <div class="card">
       ${L.produk_terlaris.length ? L.produk_terlaris.map(p => `
-        <div class="list-row">
-          <div class="info"><b>${escapeHtml(p.nama_produk)}</b><span>${p.qty_terjual} terjual</span></div>
-          <div class="kanan">${rupiah(p.omzet)}</div>
-        </div>`).join('') : '<p style="color:var(--ink-soft);margin:0;font-size:13.5px">Belum ada data.</p>'}
-    </div>
-  `;
+        <div class="list-row"><div class="info"><b>${escapeHtml(p.nama_varian)}</b><span>${p.qty_terjual} terjual</span></div><div class="kanan">${rupiah(p.omzet)}</div></div>`).join('') : '<p style="color:var(--ink-soft);margin:0;font-size:13.5px">Belum ada data.</p>'}
+    </div>`;
 }
 
 // ---------- PROFIL ----------
 function renderProfil() {
   const konten = document.getElementById('konten');
   konten.innerHTML = `
-    <div class="card">
-      <div class="list-row"><div class="info"><b>${escapeHtml(USER.nama_usaha)}</b><span>${escapeHtml(USER.email)}</span></div></div>
-    </div>
+    <div class="card"><div class="list-row"><div class="info"><b>${escapeHtml(USER.nama_usaha)}</b><span>${escapeHtml(USER.email)}</span></div></div></div>
     <div class="section-title"><h2>Tampilan</h2></div>
-    <div class="card">
-      <div class="switch-row">
-        <span>Mode gelap</span>
-        <label class="switch"><input type="checkbox" ${TEMA === 'gelap' ? 'checked' : ''} onchange="ubahTema(this.checked)"><span class="track"></span></label>
-      </div>
-    </div>
+    <div class="card"><div class="switch-row"><span>Mode gelap</span>
+      <label class="switch"><input type="checkbox" ${TEMA === 'gelap' ? 'checked' : ''} onchange="ubahTema(this.checked)"><span class="track"></span></label>
+    </div></div>
     <div class="section-title"><h2>Data</h2></div>
     <div class="card">
       <button class="btn btn-ghost" onclick="unduhBackup()">Unduh cadangan data (JSON)</button>
       <div class="btn-row"><button class="btn btn-danger" onclick="konfirmasiReset()">Reset semua data</button></div>
     </div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="keluar()">Keluar</button></div>
-  `;
+    <div class="btn-row"><button class="btn btn-ghost" onclick="keluar()">Keluar</button></div>`;
 }
 function ubahTema(gelap) {
   TEMA = gelap ? 'gelap' : 'terang';
@@ -961,7 +885,7 @@ function konfirmasiReset() {
   bukaSheet(`
     <div class="sheet-handle"></div>
     <div class="sheet-head"><h3>Reset semua data</h3><button class="icon-btn" onclick="tutupSheet()">✕</button></div>
-    <p style="color:var(--brick);font-size:13.5px">Semua bahan baku, resep, produk, dan riwayat transaksi akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
+    <p style="color:var(--brick);font-size:13.5px">Semua bahan baku, resep, varian, dan riwayat transaksi akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
     <label>Masukkan password untuk konfirmasi</label>
     <input id="reset-pass" type="password">
     <div class="form-err" id="reset-err"></div>
@@ -976,10 +900,7 @@ async function jalankanReset() {
 }
 
 // ---------- Sheet / util UI ----------
-function bukaSheet(html) {
-  document.getElementById('sheet-konten').innerHTML = html;
-  document.getElementById('overlay').classList.add('terbuka');
-}
+function bukaSheet(html) { document.getElementById('sheet-konten').innerHTML = html; document.getElementById('overlay').classList.add('terbuka'); }
 function tutupSheet() { document.getElementById('overlay').classList.remove('terbuka'); }
 function tombolTambah(fn) { return `<div class="btn-row"><button class="btn btn-primary" onclick="${fn}">+ Tambah</button></div>`; }
 function emptyState(judul, sub) {
